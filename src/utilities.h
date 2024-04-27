@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+#define FILENAME "../sharedFile"
+#define SHARED_INFO "../sharedInfo"
+
 enum State
 {
     InUse,
@@ -12,11 +15,6 @@ enum Algoritmo
     FirstFit,
     WorstFit
 };
-enum State
-{
-    Ocupado,
-    Libre
-};
 
 typedef struct
 {
@@ -24,3 +22,7 @@ typedef struct
     int pid;
     int time;
 } Line;
+
+typedef struct {
+    int num_lines;
+} BasicInformation;

@@ -3,10 +3,30 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-
-#define FILENAME "./sharedFile"
+#include "utilities.h"
 
 // COMANDO IMPORTANTE: ipcs -m OR ipcs -m -i <ID del segment>
+
+void removeBasicInfoSegment() {
+    key_t key = ftok(SHARED_INFO, 'c');
+    int shmid;
+
+    // Look for the shared segment
+    shmid = shmget(key, 0, 0644 | IPC_CREAT);
+    if (shmid < 0) {
+        return;
+    }
+
+    printf("ID del remove: %d\n", shmid);
+
+    // Delete shared memory
+    int status = shmctl(shmid, IPC_RMID, NULL);
+    if (status < 0) {
+        return;
+    }
+
+    printf("Basic information segment released\n");
+}
 
 int main(int argc, char const *argv[]) {
     if (argc != 2) {
@@ -22,15 +42,19 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
+    removeBasicInfoSegment();
+
     key_t key = ftok(FILENAME, 's');
     int shmid;
 
     // Look for the shared segment
-    shmid = shmget(key, size, 0644 | IPC_CREAT);
+    shmid = shmget(key, 0, 0644 | IPC_CREAT);
     if (shmid < 0) {
         perror("shmget");
         exit(1);
     }
+
+    printf("ID: %d\n", shmid);
 
     // Delete shared memory
     int status = shmctl(shmid, IPC_RMID, NULL);
