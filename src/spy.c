@@ -19,14 +19,9 @@ int main(int argc, char const *argv[]) {
     printf("linesArray  ==> pid: %d, state: %d\n", linesArray[0].pid, linesArray[0].state);
     printf("information ==> num_lines: %d\n", information[0].num_lines);
 
-    if (shmdt(linesArray) == -1) {
-        printf("Failed releasing linesArray memory\n");
-        exit(1);
-    }
-    if (shmdt(information) == -1) {
-        printf("Failed releasing information memory\n");
-        exit(1);
-    }
+    detachSharedMemorySegment(linesArray);
+    detachSharedMemorySegment(information);
+
     printf("Read data succesfully\n");
 
 

@@ -15,27 +15,6 @@ FILE *bitacora;
 void asignarMemoria(int pid, int tamano, enum Algoritmo algoritmo);
 void liberarMemoria(int pid);
 
-void getSharedInformation() {
-    key_t key = ftok(SHARED_INFO, 'c');
-
-    // Obtener acceso a la memoria compartida y los semáforos
-    int shmid = shmget(key, 0, 0);
-    if (shmid == -1) {
-        perror("Error al obtener la memoria compartida");
-        exit(1);
-    }
-    SharedInformation* information = (SharedInformation*) shmat(shmid, NULL, 0);
-
-    printf("Cantidad de líneas: %d\n", information[0].num_lines);
-
-    // Free shared memory (The segment is not available JUST for this process anymore)
-    printf("Memoria liberada de informacion\n");
-    if (shmdt(information) == -1) {
-        perror("shmdt");
-        exit(1);
-    }
-}
-
 int main() {
     // Solicitar el tipo de algoritmoexit
     enum Algoritmo algoritmo;
@@ -65,21 +44,16 @@ int main() {
     int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
 
     Line* linesArray = (Line*) attachSharedMemorySegment(shmid1);
-    SharedInformation* information = (SharedInformation*)attachSharedMemorySegment(shmid2);
+    SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid2);
 
     linesArray[0].pid = 5;
     linesArray[0].state = Available;
 
     information[0].num_lines = 100;
 
-    if (shmdt(linesArray) == -1) {
-        printf("Failed releasing linesArray memory\n");
-        exit(1);
-    }
-    if (shmdt(information) == -1) {
-        printf("Failed releasing information memory\n");
-        exit(1);
-    }
+    detachSharedMemorySegment(linesArray);
+    detachSharedMemorySegment(information);
+    
     printf("Wrote data succesfully\n");
 
     // memoria = (Line*) shmat(shmid, NULL, 0);
