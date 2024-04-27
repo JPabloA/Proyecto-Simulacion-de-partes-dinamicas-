@@ -1,12 +1,26 @@
 #include <stdio.h>
 
-enum State {
+enum State
+{
     InUse,
     Available
 };
 
-typedef struct {
-    enum State state; 
-    int pid;      
-    int time;   
+enum Algoritmo
+{
+    BestFit,
+    FirstFit,
+    WorstFit
+};
+enum State
+{
+    Ocupado,
+    Libre
+};
+
+typedef struct
+{
+    enum State state;
+    int pid;
+    int time;
 } Line;
