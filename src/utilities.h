@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#define FILENAME "../sharedFile"
-#define SHARED_INFO "../sharedInfo"
+#define FILENAME "./sharedFile"
+#define SHARED_INFO "./sharedInfo"
 
 enum State
 {
@@ -25,4 +25,4 @@ typedef struct
 
 typedef struct {
     int num_lines;
-} BasicInformation;
+} SharedInformation;
