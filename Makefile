@@ -2,7 +2,7 @@ CC = gcc
 
 SRC_DIR = src
 EXE_DIR = .
-SRC = $(SRC_DIR)/initializer.c $(SRC_DIR)/finalizer.c
+SRC = $(SRC_DIR)/initializer.c $(SRC_DIR)/finalizer.c $(SRC_DIR)/producer.c $(SRC_DIR)/spy.c
 EXE = $(patsubst $(SRC_DIR)/%.c,$(EXE_DIR)/%.out,$(SRC))
 
 all: $(EXE)
