@@ -3,35 +3,34 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+
 #include "utilities.h"
+#include "sharedMemory.c"
 
-// Save basic information into shared memory segment
-void saveInformation(int num_lines) {
-    // Set the key to the memory segment
-    key_t key = ftok(SHARED_INFO, 'c');
+void initSharedInformation(int shmid, int num_lines) {
+    printf("\n");
+    SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid);
 
-    // Create shared memory by the size of the struct MemoryCell
-    int shmid = shmget(key, sizeof(BasicInformation), IPC_CREAT | 0666);
-    if (shmid < 0) {
-        perror("shmget");
-        exit(1);
+    printf("Setting shared information...\n");
+    information[0].num_lines = num_lines;
+    printf("Shared information set!\n");
+
+    detachSharedMemorySegment(information);
+}
+
+void initMemoryLines(int shmid, int num_lines) {
+    printf("\n");
+    Line* lines = (Line*) attachSharedMemorySegment(shmid);
+
+    printf("Filling memory lines...\n");
+    for (int i = 0; i < num_lines; ++i) {
+        lines[i].state = Available;
+        lines[i].pid = -1;
+        lines[i].time = 0;
     }
+    printf("Memory lines filled!\n");
 
-    // Attach shared memory to the process
-    BasicInformation* memory = (BasicInformation*) shmat(shmid, NULL, 0);
-    if (memory == (BasicInformation*) -1) {
-        perror("shmat");
-        exit(1);
-    }
-
-    // Initialize the shared memory
-    memory[0].num_lines = num_lines;
-
-    // Free shared memory (The segment is not available JUST for this process anymore)
-    if (shmdt(memory) == -1) {
-        perror("shmdt");
-        exit(1);
-    }
+    detachSharedMemorySegment(lines);
 }
 
 int main(int argc, char const *argv[]) {
@@ -39,47 +38,17 @@ int main(int argc, char const *argv[]) {
     printf("Enter the number of memory lines: ");
     scanf("%d", &num_lines);
 
-    // Calculate the necessary memory space
+    // // Calculate the necessary memory space
     int line_size = sizeof(Line); // * sizeof let me know the space that its needed for one line
     int memory_size = num_lines * line_size;
 
-    // saveInformation(num_lines);
+    int shmid1 = createSharedMemorySegment(FILENAME, 's', memory_size);
+    int shmid2 = createSharedMemorySegment(SHARED_INFO, 'a', sizeof(SharedInformation));
 
-    // Set the key to the memory segment
-    key_t key = ftok(FILENAME, 's');
-    int shmid;
+    initMemoryLines(shmid1, num_lines);
+    initSharedInformation(shmid2, num_lines);
 
-    // Create shared memory by the size of the struct MemoryCell
-    shmid = shmget(key, memory_size, IPC_CREAT | 0666);
-    if (shmid < 0) {
-        perror("shmget");
-        exit(1);
-    }
-
-    // Attach shared memory to the process
-    Line* memory = (Line*) shmat(shmid, NULL, 0);
-    if (memory == (Line*) -1) {
-        perror("shmat");
-        exit(1);
-    }
-
-    // Initialize the shared memory
-    for (int i = 0; i < num_lines; i++) {
-        memory[i].state = Available;
-        memory[i].pid = -1;
-        memory[i].time = 0;
-    }
-
-    printf("Memory shared with ID: %d and %d bytes\n", shmid, memory_size);
-    sleep(5);
-
-    // Free shared memory (The segment is not available JUST for this process anymore)
-    if (shmdt(memory) == -1) {
-        perror("shmdt");
-        exit(1);
-    }
-
-    printf("Shared memory segment free and released\n");
+    printf("\nAll shared memory segments set\n");
 
     return 0;
 }

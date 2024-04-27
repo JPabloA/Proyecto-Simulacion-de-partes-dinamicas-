@@ -5,6 +5,7 @@
 #include <semaphore.h>
 #include <time.h>
 #include "utilities.h"
+#include "sharedMemory.c"
 
 Line *memoria;
 int numLineas;
@@ -14,7 +15,7 @@ FILE *bitacora;
 void asignarMemoria(int pid, int tamano, enum Algoritmo algoritmo);
 void liberarMemoria(int pid);
 
-void getBasicInformation() {
+void getSharedInformation() {
     key_t key = ftok(SHARED_INFO, 'c');
 
     // Obtener acceso a la memoria compartida y los semáforos
@@ -23,7 +24,7 @@ void getBasicInformation() {
         perror("Error al obtener la memoria compartida");
         exit(1);
     }
-    BasicInformation* information = (BasicInformation*) shmat(shmid, NULL, 0);
+    SharedInformation* information = (SharedInformation*) shmat(shmid, NULL, 0);
 
     printf("Cantidad de líneas: %d\n", information[0].num_lines);
 
@@ -36,7 +37,7 @@ void getBasicInformation() {
 }
 
 int main() {
-    // Solicitar el tipo de algoritmo
+    // Solicitar el tipo de algoritmoexit
     enum Algoritmo algoritmo;
 
     printf("Seleccione el algoritmo de asignación de memoria:\n");
@@ -60,36 +61,49 @@ int main() {
             exit(1);
     }
 
-    key_t key = ftok(FILENAME, 's');
+    int shmid1 = getSharedMemorySegment(FILENAME, 's');
+    int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
 
-    // Obtener acceso a la memoria compartida y los semáforos
-    int shmid = shmget(key, 0, 0);
-    if (shmid == -1) {
-        perror("Error al obtener la memoria compartida");
+    Line* linesArray = (Line*) attachSharedMemorySegment(shmid1);
+    SharedInformation* information = (SharedInformation*)attachSharedMemorySegment(shmid2);
+
+    linesArray[0].pid = 5;
+    linesArray[0].state = Available;
+
+    information[0].num_lines = 100;
+
+    if (shmdt(linesArray) == -1) {
+        printf("Failed releasing linesArray memory\n");
         exit(1);
     }
-    memoria = (Line*) shmat(shmid, NULL, 0);
-    numLineas = shmid / sizeof(Line);
-
-    getBasicInformation();
-
-    printf("Memoria asignada...\n");
-    memoria[0].pid = 5;
-    memoria[0].state = InUse;
-    sleep(5);
-    printf("Memoria liberada\n");
-    printf("ID %d\n", shmid);
-    printf("Num lineas %d\n", numLineas);
-
-    // sem_memoria = sem_open("/sem_memoria", 0);
-    // sem_bitacora = sem_open("/sem_bitacora", 0);
-    // bitacora = fopen("bitacora.log", "a");
-
-    // Free shared memory (The segment is not available JUST for this process anymore)
-    if (shmdt(memoria) == -1) {
-        perror("shmdt");
+    if (shmdt(information) == -1) {
+        printf("Failed releasing information memory\n");
         exit(1);
     }
+    printf("Wrote data succesfully\n");
+
+    // memoria = (Line*) shmat(shmid, NULL, 0);
+    // numLineas = shmid / sizeof(Line);
+
+    // getSharedInformation();
+
+    // printf("Memoria asignada...\n");
+    // memoria[0].pid = 5;
+    // memoria[0].state = InUse;
+    // sleep(5);
+    // printf("Memoria liberada\n");
+    // printf("ID %d\n", shmid);
+    // printf("Num lineas %d\n", numLineas);
+
+    // // sem_memoria = sem_open("/sem_memoria", 0);
+    // // sem_bitacora = sem_open("/sem_bitacora", 0);
+    // // bitacora = fopen("bitacora.log", "a");
+
+    // // Free shared memory (The segment is not available JUST for this process anymore)
+    // if (shmdt(memoria) == -1) {
+    //     perror("shmdt");
+    //     exit(1);
+    // }
 
 
     // Generar procesos
@@ -110,47 +124,47 @@ int main() {
     return 0;
 }
 
-void asignarMemoria(int pid, int size, enum Algoritmo algoritmo) {
-    sem_wait(sem_memoria);
+// void asignarMemoria(int pid, int size, enum Algoritmo algoritmo) {
+//     sem_wait(sem_memoria);
 
-    int asignado = 0;
-    for (int i = 0; i <= numLineas - size; i++) {
-        int hueco = 1;
-        for (int j = 0; j < size; j++) {
-            if (memoria[i + j].state == InUse) {
-                hueco = 0;
-                i += j;
-                break;
-            }
-        }
-        if (hueco) {
-            for (int j = 0; j < size; j++) {
-                memoria[i + j].state = InUse;
-                memoria[i + j].pid = pid;
-            }
-            asignado = 1;
-            break;
-        }
-    }
+//     int asignado = 0;
+//     for (int i = 0; i <= numLineas - size; i++) {
+//         int hueco = 1;
+//         for (int j = 0; j < size; j++) {
+//             if (memoria[i + j].state == InUse) {
+//                 hueco = 0;
+//                 i += j;
+//                 break;
+//             }
+//         }
+//         if (hueco) {
+//             for (int j = 0; j < size; j++) {
+//                 memoria[i + j].state = InUse;
+//                 memoria[i + j].pid = pid;
+//             }
+//             asignado = 1;
+//             break;
+//         }
+//     }
 
-    // if (asignado) {
-    //     sem_wait(sem_bitacora);
-    //     fprintf(bitacora, "Proceso %d asignado (%d líneas)\n", pid, size);
-    //     sem_post(sem_bitacora);
-    // } else {
-    //     sem_wait(sem_bitacora);
-    //     fprintf(bitacora, "Proceso %d no pudo ser asignado\n", pid);
-    //     sem_post(sem_bitacora);
-    // }
+//     // if (asignado) {
+//     //     sem_wait(sem_bitacora);
+//     //     fprintf(bitacora, "Proceso %d asignado (%d líneas)\n", pid, size);
+//     //     sem_post(sem_bitacora);
+//     // } else {
+//     //     sem_wait(sem_bitacora);
+//     //     fprintf(bitacora, "Proceso %d no pudo ser asignado\n", pid);
+//     //     sem_post(sem_bitacora);
+//     // }
 
-    // sem_post(sem_memoria);
-}
+//     // sem_post(sem_memoria);
+// }
 
-void liberarMemoria(int pid) {
-    sem_wait(sem_memoria);
+// void liberarMemoria(int pid) {
+//     sem_wait(sem_memoria);
 
-    // Liberar la memoria asignada al proceso
-    // ...
+//     // Liberar la memoria asignada al proceso
+//     // ...
 
-    sem_post(sem_memoria);
-}
+//     sem_post(sem_memoria);
+// }

@@ -4,66 +4,49 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include "utilities.h"
+#include "sharedMemory.c"
 
-// COMANDO IMPORTANTE: ipcs -m OR ipcs -m -i <ID del segment>
-
-void removeBasicInfoSegment() {
-    key_t key = ftok(SHARED_INFO, 'c');
-    int shmid;
-
-    // Look for the shared segment
-    shmid = shmget(key, 0, 0644 | IPC_CREAT);
-    if (shmid < 0) {
-        return;
-    }
-
-    printf("ID del remove: %d\n", shmid);
-
-    // Delete shared memory
-    int status = shmctl(shmid, IPC_RMID, NULL);
-    if (status < 0) {
-        return;
-    }
-
-    printf("Basic information segment released\n");
-}
 
 int main(int argc, char const *argv[]) {
-    if (argc != 2) {
-        fprintf(stderr, "Argumentos incorrectos!\nUso: %s <size_in_bytes>\n", argv[0]);
-        return 1;
-    }
 
-    char *endptr;
-    long int size = strtol(argv[1], &endptr, 10);
+    releaseSharedMemorySegment(FILENAME, 's');
+    releaseSharedMemorySegment(SHARED_INFO, 'a');
 
-    if (size <= 0 || *endptr != '\0') {
-        fprintf(stderr, "Invalid arguments types\n");
-        return 1;
-    }
+    // if (argc != 2) {
+    //     fprintf(stderr, "Argumentos incorrectos!\nUso: %s <size_in_bytes>\n", argv[0]);
+    //     return 1;
+    // }
 
-    removeBasicInfoSegment();
+    // char *endptr;
+    // long int size = strtol(argv[1], &endptr, 10);
 
-    key_t key = ftok(FILENAME, 's');
-    int shmid;
+    // if (size <= 0 || *endptr != '\0') {
+    //     fprintf(stderr, "Invalid arguments types\n");
+    //     return 1;
+    // }
 
-    // Look for the shared segment
-    shmid = shmget(key, 0, 0644 | IPC_CREAT);
-    if (shmid < 0) {
-        perror("shmget");
-        exit(1);
-    }
+    // removeBasicInfoSegment();
 
-    printf("ID: %d\n", shmid);
+    // key_t key = ftok(FILENAME, 's');
+    // int shmid;
 
-    // Delete shared memory
-    int status = shmctl(shmid, IPC_RMID, NULL);
-    if (status < 0) {
-        perror("shmctl");
-        exit(1);
-    }
+    // // Look for the shared segment
+    // shmid = shmget(key, 0, 0644 | IPC_CREAT);
+    // if (shmid < 0) {
+    //     perror("shmget");
+    //     exit(1);
+    // }
 
-    printf("Shared memory segment free and released\n");
+    // printf("ID: %d\n", shmid);
+
+    // // Delete shared memory
+    // int status = shmctl(shmid, IPC_RMID, NULL);
+    // if (status < 0) {
+    //     perror("shmctl");
+    //     exit(1);
+    // }
+
+    // printf("Shared memory segment free and released\n");
 
     return 0;
 }

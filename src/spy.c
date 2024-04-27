@@ -5,34 +5,30 @@
 #include <semaphore.h>
 #include <time.h>
 #include "utilities.h"
+#include "sharedMemory.c"
+
 
 int main(int argc, char const *argv[]) {
 
-    key_t key = ftok(FILENAME, 's');
+    int shmid1 = getSharedMemorySegment(FILENAME, 's');
+    int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
 
-    // Obtener acceso a la memoria compartida y los semáforos
-    int shmid = shmget(key, 0, 0);
-    if (shmid == -1) {
-        perror("Error al obtener la memoria compartida");
+    Line* linesArray = (Line*) attachSharedMemorySegment(shmid1);
+    SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid2);
+
+    printf("linesArray  ==> pid: %d, state: %d\n", linesArray[0].pid, linesArray[0].state);
+    printf("information ==> num_lines: %d\n", information[0].num_lines);
+
+    if (shmdt(linesArray) == -1) {
+        printf("Failed releasing linesArray memory\n");
         exit(1);
     }
-    Line *memoria = (Line*) shmat(shmid, NULL, 0);
-
-    printf("Memoria asignada...\n");
-    printf("Valor en celda 0: pid=%d   state=%d\n", memoria[0].pid, memoria[0].state);
-
-    sleep(5);
-    printf("Memoria liberada\n");
-
-    // sem_memoria = sem_open("/sem_memoria", 0);
-    // sem_bitacora = sem_open("/sem_bitacora", 0);
-    // bitacora = fopen("bitacora.log", "a");
-
-    // Free shared memory (The segment is not available JUST for this process anymore)
-    if (shmdt(memoria) == -1) {
-        perror("shmdt");
+    if (shmdt(information) == -1) {
+        printf("Failed releasing information memory\n");
         exit(1);
     }
+    printf("Read data succesfully\n");
+
 
     return 0;
 }
