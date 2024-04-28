@@ -93,6 +93,28 @@ void releaseEnvironment() {
     detachSharedMemorySegment(information);
 }
 
+int getProccesID(){
+    return currentProccesNumber;
+}
+
+void* searhForMemory(){
+    // Assign process in memory
+    int index = loadInSharedMemory(&args);
+
+    if (index == -1) {
+        printf("Process couldnt be assigned -> End of process\n");
+        return NULL;
+    }
+    printf("Thread created: ID: %d - Lines: %d - Time: %d\n", args.pid, args.lines, args.time);
+    sleep(args.time);
+
+    // Released occupied memory lines
+    releaseInSharedMemory(index, &args);
+
+    pthread_exit(NULL);
+    return NULL;
+}
+
 int main() {
     // Solicitar el tipo de algoritmoexit
     enum Algoritmo algoritmo;
@@ -120,12 +142,7 @@ int main() {
 
     initEnvironment();
 
-    // linesArray[0].pid = 5;
-    // linesArray[0].state = Available;
-    // information[0].num_lines = 100;
-
     // !: while to create the process
-
     srand(time(NULL));
     while (true){
 
@@ -135,16 +152,10 @@ int main() {
         args.time = rand() % 41 + 20;
 
         pthread_create(&hilo, NULL, &searhForMemory, NULL);
-        pthread_join(hilo, NULL);
-
-        // asignarMemoria(pid, tamano, algoritmo);
-        // sleep(tiempo);
-        // liberarMemoria(pid);
-
+        // pthread_join(hilo, NULL);
 
         int delay = rand() % 31 + 30;
         sleep(delay);
-
     }
 
     
@@ -170,24 +181,4 @@ int main() {
     // // bitacora = fopen("bitacora.log", "a");
 
     return 0;
-}
-
-int getProccesID(){
-    return currentProccesNumber;
-}
-
-void* searhForMemory(){
-    // Assign process in memory
-    int index = loadInSharedMemory(&args);
-
-    if (index == -1) {
-        printf("Process couldnt be assigned -> End of process\n");
-        return;
-    }
-    sleep(args.time);
-
-    // Released occupied memory lines
-    releaseInSharedMemory(index, &args);
-
-    pthread_exit(NULL);
 }
