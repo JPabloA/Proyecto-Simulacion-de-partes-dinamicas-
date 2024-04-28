@@ -1,19 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/shm.h>
 #include <semaphore.h>
 #include <time.h>
+#include <pthread.h>
 #include "utilities.h"
 #include "sharedMemory.c"
 
 Line *memory;
 SharedInformation* information;
 
+pthread_t hilo;
+ThreadProcess args;
+
 sem_t *sem_memoria, *sem_bitacora;
 FILE *bitacora;
 
 int num_lines;
+int currentProccesNumber, ProcessTime, ProcessSize;
 
 
 int loadInSharedMemory(ThreadProcess* proc) {
@@ -67,28 +73,6 @@ void releaseInSharedMemory(int index, ThreadProcess* proc) {
     // *** AQUI TIENE QUE IR UN SEMAFORO
 }
 
-
-void generateThreadProcess() {
-    srand(time(NULL));
-
-    // Init a ThreadProcess struct with time, lines and pid
-    ThreadProcess proc;
-    proc.lines = rand() % 10 + 1;
-    proc.time  = rand() % 41 + 20;
-    proc.pid = getpid();
-
-    // Assign process in memory
-    int index = loadInSharedMemory(&proc);
-
-    if (index == -1) {
-        printf("Process couldnt be assigned -> End of process\n");
-        return;
-    }
-
-    // Released occupied memory lines
-    releaseInSharedMemory(index, &proc);
-}
-
 void initEnvironment() {
     int shmid1 = getSharedMemorySegment(FILENAME, 's');
     int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
@@ -136,10 +120,33 @@ int main() {
 
     initEnvironment();
 
-    memory[0].pid = 5;
-    memory[0].state = Available;
+    // linesArray[0].pid = 5;
+    // linesArray[0].state = Available;
+    // information[0].num_lines = 100;
 
-    information[0].num_lines = 100;
+    // !: while to create the process
+
+    srand(time(NULL));
+    while (true){
+
+        args.pid = getProccesID(); 
+        currentProccesNumber++;          
+        args.lines = rand() % 10 + 1;
+        args.time = rand() % 41 + 20;
+
+        pthread_create(&hilo, NULL, &searhForMemory, NULL);
+        pthread_join(hilo, NULL);
+
+        // asignarMemoria(pid, tamano, algoritmo);
+        // sleep(tiempo);
+        // liberarMemoria(pid);
+
+
+        int delay = rand() % 31 + 30;
+        sleep(delay);
+
+    }
+
     
     releaseEnvironment();
     printf("Wrote data succesfully\n");
@@ -157,60 +164,30 @@ int main() {
     // printf("ID %d\n", shmid);
     // printf("Num lineas %d\n", num_lines);
 
+    
     // // sem_memoria = sem_open("/sem_memoria", 0);
     // // sem_bitacora = sem_open("/sem_bitacora", 0);
     // // bitacora = fopen("bitacora.log", "a");
 
-    // // Free shared memory (The segment is not available JUST for this process anymore)
-    // if (shmdt(memoria) == -1) {
-    //     perror("shmdt");
-    //     exit(1);
-    // }
-
     return 0;
 }
 
-// void asignarMemoria(int pid, int size, enum Algoritmo algoritmo) {
-//     sem_wait(sem_memoria);
+int getProccesID(){
+    return currentProccesNumber;
+}
 
-//     int asignado = 0;
-//     for (int i = 0; i <= num_lines - size; i++) {
-//         int hueco = 1;
-//         for (int j = 0; j < size; j++) {
-//             if (memoria[i + j].state == InUse) {
-//                 hueco = 0;
-//                 i += j;
-//                 break;
-//             }
-//         }
-//         if (hueco) {
-//             for (int j = 0; j < size; j++) {
-//                 memoria[i + j].state = InUse;
-//                 memoria[i + j].pid = pid;
-//             }
-//             asignado = 1;
-//             break;
-//         }
-//     }
+void* searhForMemory(){
+    // Assign process in memory
+    int index = loadInSharedMemory(&args);
 
-//     // if (asignado) {
-//     //     sem_wait(sem_bitacora);
-//     //     fprintf(bitacora, "Proceso %d asignado (%d líneas)\n", pid, size);
-//     //     sem_post(sem_bitacora);
-//     // } else {
-//     //     sem_wait(sem_bitacora);
-//     //     fprintf(bitacora, "Proceso %d no pudo ser asignado\n", pid);
-//     //     sem_post(sem_bitacora);
-//     // }
+    if (index == -1) {
+        printf("Process couldnt be assigned -> End of process\n");
+        return;
+    }
+    sleep(args.time);
 
-//     // sem_post(sem_memoria);
-// }
+    // Released occupied memory lines
+    releaseInSharedMemory(index, &args);
 
-// void liberarMemoria(int pid) {
-//     sem_wait(sem_memoria);
-
-//     // Liberar la memoria asignada al proceso
-//     // ...
-
-//     sem_post(sem_memoria);
-// }
+    pthread_exit(NULL);
+}
