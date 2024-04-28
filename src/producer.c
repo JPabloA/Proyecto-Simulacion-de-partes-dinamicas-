@@ -7,13 +7,107 @@
 #include "utilities.h"
 #include "sharedMemory.c"
 
-Line *memoria;
-int numLineas;
+Line *memory;
+SharedInformation* information;
+
 sem_t *sem_memoria, *sem_bitacora;
 FILE *bitacora;
 
-void asignarMemoria(int pid, int tamano, enum Algoritmo algoritmo);
-void liberarMemoria(int pid);
+int num_lines;
+
+
+int loadInSharedMemory(ThreadProcess* proc) {
+    int index = -1;
+    int proc_size = proc->lines;
+
+    // *** AQUI TIENE QUE IR UN SEMAFORO
+    // *** El check de spaces depende del algoritmo -> Este es el first fit
+
+    // Check if spaces are available
+    for (int i = 0; i < num_lines; ++i ) {
+        if ( memory[i].state == Available ) {
+            proc_size--;
+        }
+        else {
+            proc_size = proc->lines;
+            continue;
+        }
+
+        if (proc_size == 0) {
+            index = i - proc->lines + 1;
+            break;
+        }
+    }
+
+    // If proc_size == 0 :: Space found
+    if (!proc_size && index != -1) {
+        // Load process in memory
+        for (int i = index; i < proc->lines; ++i ) {
+            memory[i].state = InUse;
+            memory[i].pid = proc->pid;
+        }
+
+        return index;
+    }
+
+    // *** AQUI TIENE QUE IR UN SEMAFORO
+
+    return -1;
+}
+
+void releaseInSharedMemory(int index, ThreadProcess* proc) {
+    // *** AQUI TIENE QUE IR UN SEMAFORO
+
+    // Release asigned memory lines
+    for (int i = index; i < proc->lines; ++i ) {
+        memory[i].state = Available;
+        memory[i].pid = -1;
+    }
+
+    // *** AQUI TIENE QUE IR UN SEMAFORO
+}
+
+
+void generateThreadProcess() {
+    srand(time(NULL));
+
+    // Init a ThreadProcess struct with time, lines and pid
+    ThreadProcess proc;
+    proc.lines = rand() % 10 + 1;
+    proc.time  = rand() % 41 + 20;
+    proc.pid = getpid();
+
+    // Assign process in memory
+    int index = loadInSharedMemory(&proc);
+
+    if (index == -1) {
+        printf("Process couldnt be assigned -> End of process\n");
+        return;
+    }
+
+    // Released occupied memory lines
+    releaseInSharedMemory(index, &proc);
+}
+
+void initEnvironment() {
+    int shmid1 = getSharedMemorySegment(FILENAME, 's');
+    int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
+    
+    if (shmid1 < 0 || shmid2 < 0) {
+        printf("Failed getting segments in init environment");
+        exit(1);
+    }
+
+    memory = (Line*) attachSharedMemorySegment(shmid1);
+    information = (SharedInformation*) attachSharedMemorySegment(shmid2);
+
+    num_lines = information->num_lines;
+}
+
+void releaseEnvironment() {
+    detachSharedMemorySegment(memory);
+    detachSharedMemorySegment(information);
+}
 
 int main() {
     // Solicitar el tipo de algoritmoexit
@@ -40,24 +134,18 @@ int main() {
             exit(1);
     }
 
-    int shmid1 = getSharedMemorySegment(FILENAME, 's');
-    int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
+    initEnvironment();
 
-    Line* linesArray = (Line*) attachSharedMemorySegment(shmid1);
-    SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid2);
-
-    linesArray[0].pid = 5;
-    linesArray[0].state = Available;
+    memory[0].pid = 5;
+    memory[0].state = Available;
 
     information[0].num_lines = 100;
-
-    detachSharedMemorySegment(linesArray);
-    detachSharedMemorySegment(information);
     
+    releaseEnvironment();
     printf("Wrote data succesfully\n");
 
     // memoria = (Line*) shmat(shmid, NULL, 0);
-    // numLineas = shmid / sizeof(Line);
+    // num_lines = shmid / sizeof(Line);
 
     // getSharedInformation();
 
@@ -67,7 +155,7 @@ int main() {
     // sleep(5);
     // printf("Memoria liberada\n");
     // printf("ID %d\n", shmid);
-    // printf("Num lineas %d\n", numLineas);
+    // printf("Num lineas %d\n", num_lines);
 
     // // sem_memoria = sem_open("/sem_memoria", 0);
     // // sem_bitacora = sem_open("/sem_bitacora", 0);
@@ -79,22 +167,6 @@ int main() {
     //     exit(1);
     // }
 
-
-    // Generar procesos
-    // srand(time(NULL));
-    // while (1) {
-    //     int tamano = rand() % 10 + 1;
-    //     int tiempo = rand() % 41 + 20;
-    //     int pid = getpid();
-
-    //     asignarMemoria(pid, tamano, algoritmo);
-    //     sleep(tiempo);
-    //     liberarMemoria(pid);
-
-    //     int delay = rand() % 31 + 30;
-    //     sleep(delay);
-    // }
-
     return 0;
 }
 
@@ -102,7 +174,7 @@ int main() {
 //     sem_wait(sem_memoria);
 
 //     int asignado = 0;
-//     for (int i = 0; i <= numLineas - size; i++) {
+//     for (int i = 0; i <= num_lines - size; i++) {
 //         int hueco = 1;
 //         for (int j = 0; j < size; j++) {
 //             if (memoria[i + j].state == InUse) {
