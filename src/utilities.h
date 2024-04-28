@@ -24,5 +24,11 @@ typedef struct
 } Line;
 
 typedef struct {
+    int pid;
+    int time;
+    int lines;
+} ThreadProcess;
+
+typedef struct {
     int num_lines;
 } SharedInformation;

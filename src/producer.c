@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <sys/shm.h>
 #include <semaphore.h>
 #include <time.h>
+#include <pthread.h>
 #include "utilities.h"
 #include "sharedMemory.c"
 
 Line *memoria;
 int numLineas;
+int currentProccesNumber, ProcessTime, ProcessSize;
+pthread_t hilo;
+ThreadProcess args;
 sem_t *sem_memoria, *sem_bitacora;
 FILE *bitacora;
 
@@ -46,39 +51,45 @@ int main() {
     Line* linesArray = (Line*) attachSharedMemorySegment(shmid1);
     SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid2);
 
-    linesArray[0].pid = 5;
-    linesArray[0].state = Available;
+    // linesArray[0].pid = 5;
+    // linesArray[0].state = Available;
+    // information[0].num_lines = 100;
 
-    information[0].num_lines = 100;
+    // !: while to create the process
+
+    srand(time(NULL));
+    while (true){
+
+        args.pid = getProccesID(); 
+        currentProccesNumber++;          
+        args.lines = rand() % 10 + 1;
+        args.time = rand() % 41 + 20;
+
+        pthread_create(&hilo, NULL, &searhForMemory, NULL);
+        pthread_join(hilo, NULL);
+
+        // asignarMemoria(pid, tamano, algoritmo);
+        // sleep(tiempo);
+        // liberarMemoria(pid);
+
+
+        int delay = rand() % 31 + 30;
+        sleep(delay);
+
+    }
+
+
 
     detachSharedMemorySegment(linesArray);
     detachSharedMemorySegment(information);
     
     printf("Wrote data succesfully\n");
-
-    // memoria = (Line*) shmat(shmid, NULL, 0);
-    // numLineas = shmid / sizeof(Line);
-
-    // getSharedInformation();
-
-    // printf("Memoria asignada...\n");
-    // memoria[0].pid = 5;
-    // memoria[0].state = InUse;
-    // sleep(5);
-    // printf("Memoria liberada\n");
-    // printf("ID %d\n", shmid);
-    // printf("Num lineas %d\n", numLineas);
-
+    
     // // sem_memoria = sem_open("/sem_memoria", 0);
     // // sem_bitacora = sem_open("/sem_bitacora", 0);
     // // bitacora = fopen("bitacora.log", "a");
 
     // // Free shared memory (The segment is not available JUST for this process anymore)
-    // if (shmdt(memoria) == -1) {
-    //     perror("shmdt");
-    //     exit(1);
-    // }
-
 
     // Generar procesos
     // srand(time(NULL));
@@ -97,6 +108,20 @@ int main() {
 
     return 0;
 }
+
+int getProccesID(){
+    return currentProccesNumber;
+}
+
+void* searhForMemory(){
+
+    asignarMemoria(args.pid, args.lines, BestFit);
+    sleep(args.time);
+    liberarMemoria(args.pid);
+
+    pthread_exit(NULL);
+}
+
 
 // void asignarMemoria(int pid, int size, enum Algoritmo algoritmo) {
 //     sem_wait(sem_memoria);
