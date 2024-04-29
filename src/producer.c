@@ -15,7 +15,7 @@ SharedInformation* information;
 pthread_t hilo;
 ThreadProcess args;
 
-sem_t *sem_memoria, *sem_bitacora;
+sem_t *semaphoreMemory, *semaphoreLog;
 FILE *bitacora;
 
 int num_lines;
@@ -23,10 +23,13 @@ int currentProccesNumber, ProcessTime, ProcessSize;
 
 
 int loadInSharedMemory(ThreadProcess* proc) {
+
     int index = -1;
     int proc_size = proc->lines;
 
-    // *** AQUI TIENE QUE IR UN SEMAFORO
+
+   sem_wait(semaphoreMemory);
+    printf("2");
     // *** El check de spaces depende del algoritmo -> Este es el first fit
 
     // Check if spaces are available
@@ -56,7 +59,7 @@ int loadInSharedMemory(ThreadProcess* proc) {
         return index;
     }
 
-    // *** AQUI TIENE QUE IR UN SEMAFORO
+    sem_post(semaphoreMemory);
 
     return -1;
 }
@@ -141,6 +144,10 @@ int main() {
     }
 
     initEnvironment();
+
+
+    semaphoreMemory = sem_open(SNAME, 0);
+    
 
     // !: while to create the process
     srand(time(NULL));

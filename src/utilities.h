@@ -2,6 +2,7 @@
 
 #define FILENAME "./sharedFile"
 #define SHARED_INFO "./sharedInfo"
+#define SNAME "/MemSemaphore"
 
 enum State
 {

@@ -3,9 +3,15 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <fcntl.h>           /* For O_* constants */
+#include <sys/stat.h>        /* For mode constants */
+#include <semaphore.h>
 
 #include "utilities.h"
 #include "sharedMemory.c"
+
+
+sem_t semaphoreMemory;
 
 void initSharedInformation(int shmid, int num_lines) {
     printf("\n");
@@ -41,6 +47,8 @@ int main(int argc, char const *argv[]) {
     // // Calculate the necessary memory space
     int line_size = sizeof(Line); // * sizeof let me know the space that its needed for one line
     int memory_size = num_lines * line_size;
+
+    sem_t *semaphoreMemory = sem_open(SNAME, O_CREAT, 0644, 1); 
 
     int shmid1 = createSharedMemorySegment(FILENAME, 's', memory_size);
     int shmid2 = createSharedMemorySegment(SHARED_INFO, 'a', sizeof(SharedInformation));
