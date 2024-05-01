@@ -34,12 +34,11 @@ void releaseSharedMemorySegment(const char* filepath, int id) {
 
     int shmid = getSharedMemorySegment(filepath, id);
 
-    printf("Released ID: %d\n", shmid);
-
     if (shmctl(shmid, IPC_RMID, NULL) < 0) {
         printf("ERROR: Failed releasing shared memory segment\n");
         return;
     }
+    printf("Released ID: %d\n", shmid);
     printf("Shared memory segment released\n");
 }
 
