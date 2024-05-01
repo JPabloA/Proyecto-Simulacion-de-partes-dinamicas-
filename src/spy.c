@@ -7,27 +7,40 @@
 #include "utilities.h"
 #include "sharedMemory.c"
 
+// Semaphores
+sem_t *semaphoreMemory;
+
+void showMemoryState(Line* memory, int lines) {
+    sem_wait(semaphoreMemory);
+
+    for (int i = 0; i < lines; ++i) {
+        printf("Line %d: ID=%d - State=%s\n", i, memory[i].pid, (memory[i].state == Available) ? "Available" : "In Use");
+    }
+
+    sem_post(semaphoreMemory);
+}
+
 int main(int argc, char const *argv[]) {
 
     int shmid1 = getSharedMemorySegment(FILENAME, 's');
     int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
+    semaphoreMemory = sem_open(SNAME, 0);
 
     if (shmid1 < 0 || shmid2 < 0) {
         printf("Failed getting shared memory segment - Spy");
         return 1;
     }
-
-    Line* linesArray = (Line*) attachSharedMemorySegment(shmid1);
-    SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid2);
-
-    for (int i = 0; i < information->num_lines; ++i) {
-        printf("Line %d: ID=%d - State=%s\n", i, linesArray[i].pid, (linesArray[i].state == Available) ? "Available" : "In Use");
+    if (semaphoreMemory == SEM_FAILED) {
+        printf("Failed opening memory semaphore - Spy\n");
+        return 1;
     }
 
-    printf("linesArray  ==> pid: %d, state: %d\n", linesArray[0].pid, linesArray[0].state);
-    printf("information ==> num_lines: %d\n", information[0].num_lines);
+    Line* memory = (Line*) attachSharedMemorySegment(shmid1);
+    SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid2);
 
-    detachSharedMemorySegment(linesArray);
+    showMemoryState(memory, information->num_lines);
+
+    detachSharedMemorySegment(memory);
     detachSharedMemorySegment(information);
 
     printf("Read data succesfully\n");
