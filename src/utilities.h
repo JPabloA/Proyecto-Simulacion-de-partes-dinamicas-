@@ -10,7 +10,7 @@ enum State
     Available
 };
 
-enum Algoritmo
+enum Algorithm
 {
     BestFit,
     FirstFit,
@@ -21,7 +21,6 @@ typedef struct
 {
     enum State state;
     int pid;
-    int time;
 } Line;
 
 typedef struct {

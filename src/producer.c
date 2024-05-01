@@ -18,12 +18,12 @@ Line *memory;
 SharedInformation *information;
 
 sem_t *semaphoreMemory, *semaphoreLog;
-FILE *bitacora;
+FILE *log;
 
 int num_lines;
-int currentProccesNumber, ProcessTime, ProcessSize;
+int currentProccesNumber;
 
-enum Algoritmo algoritmo;
+enum Algorithm algorithm;
 
 int method_FirstFit(ThreadProcess *proc) {
     int index = -1;
@@ -64,10 +64,10 @@ int loadInSharedMemory(ThreadProcess *proc) {
     printf("Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
     sem_wait(semaphoreMemory);
 
-    if (algoritmo == FirstFit) {
+    if (algorithm == FirstFit) {
         index = method_FirstFit(proc);
     }
-    else if (algoritmo == BestFit) {
+    else if (algorithm == BestFit) {
         index = method_FirstFit(proc);
     }
     else {
@@ -180,8 +180,8 @@ void *createProcesses(void *arg) {
 }
 
 int main() {
-    // Solicitar el tipo de algoritmoexit
-    printf("Seleccione el algoritmo de asignación de memoria:\n");
+    // Solicitar el tipo de algorithmexit
+    printf("Seleccione el algorithm de asignación de memoria:\n");
     printf("1. Best-Fit\n2. First-Fit\n3. Worst-Fit\n");
 
     int opcion;
@@ -189,13 +189,13 @@ int main() {
 
     switch (opcion) {
         case 1:
-            algoritmo = BestFit;
+            algorithm = BestFit;
             break;
         case 2:
-            algoritmo = FirstFit;
+            algorithm = FirstFit;
             break;
         case 3:
-            algoritmo = WorstFit;
+            algorithm = WorstFit;
             break;
         default:
             printf("Opción inválida\n");
@@ -232,9 +232,9 @@ int main() {
     // printf("ID %d\n", shmid);
     // printf("Num lineas %d\n", num_lines);
 
-    // // sem_memoria = sem_open("/sem_memoria", 0);
-    // // sem_bitacora = sem_open("/sem_bitacora", 0);
-    // // bitacora = fopen("bitacora.log", "a");
+    // sem_memoria = sem_open("/sem_memoria", 0);
+    // sem_log = sem_open("/sem_log", 0);
+    // log = fopen("log.log", "a");
 
     return 0;
 }
