@@ -3,19 +3,19 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <fcntl.h>           /* For O_* constants */
-#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h>    /* For O_* constants */
+#include <sys/stat.h> /* For mode constants */
 #include <semaphore.h>
 
 #include "utilities.h"
 #include "sharedMemory.c"
 
-
 sem_t semaphoreMemory;
 
-void initSharedInformation(int shmid, int num_lines) {
+void initSharedInformation(int shmid, int num_lines)
+{
     printf("\n");
-    SharedInformation* information = (SharedInformation*) attachSharedMemorySegment(shmid);
+    SharedInformation *information = (SharedInformation *)attachSharedMemorySegment(shmid);
 
     printf("Setting shared information...\n");
     information[0].num_lines = num_lines;
@@ -24,12 +24,14 @@ void initSharedInformation(int shmid, int num_lines) {
     detachSharedMemorySegment(information);
 }
 
-void initMemoryLines(int shmid, int num_lines) {
+void initMemoryLines(int shmid, int num_lines)
+{
     printf("\n");
-    Line* lines = (Line*) attachSharedMemorySegment(shmid);
+    Line *lines = (Line *)attachSharedMemorySegment(shmid);
 
     printf("Filling memory lines...\n");
-    for (int i = 0; i < num_lines; ++i) {
+    for (int i = 0; i < num_lines; ++i)
+    {
         lines[i].state = Available;
         lines[i].pid = -1;
         lines[i].time = 0;
@@ -39,7 +41,8 @@ void initMemoryLines(int shmid, int num_lines) {
     detachSharedMemorySegment(lines);
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[])
+{
     int num_lines;
     printf("Enter the number of memory lines: ");
     scanf("%d", &num_lines);
@@ -48,7 +51,12 @@ int main(int argc, char const *argv[]) {
     int line_size = sizeof(Line); // * sizeof let me know the space that its needed for one line
     int memory_size = num_lines * line_size;
 
-    sem_t *semaphoreMemory = sem_open(SNAME, O_CREAT, 0644, 1); 
+    sem_t *semaphoreMemory = sem_open(SNAME, O_CREAT, 0644, 1);
+    if (semaphoreMemory == SEM_FAILED)
+    {
+        perror("Error al abrir el semáforo");
+        exit(1);
+    }
 
     int shmid1 = createSharedMemorySegment(FILENAME, 's', memory_size);
     int shmid2 = createSharedMemorySegment(SHARED_INFO, 'a', sizeof(SharedInformation));
