@@ -17,89 +17,94 @@ pthread_t threads[THREAD_NUMBER];
 Line *memory;
 SharedInformation *information;
 
-pthread_t hilo;
-ThreadProcess args;
-
 sem_t *semaphoreMemory, *semaphoreLog;
 FILE *bitacora;
 
 int num_lines;
 int currentProccesNumber, ProcessTime, ProcessSize;
 
-int loadInSharedMemory(ThreadProcess *proc)
-{
+enum Algoritmo algoritmo;
 
+int method_FirstFit(ThreadProcess *proc) {
     int index = -1;
     int proc_size = proc->lines;
 
-    printf("Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
-    sem_wait(semaphoreMemory);
-    printf("Proceso %d adquirió semáforo de memoria\n", proc->pid);
-    printf("El size del proceso es: %d\n", proc->lines);
-    // *** El check de spaces depende del algoritmo -> Este es el first fit
-
     // Check if spaces are available
-    for (int i = 0; i < num_lines; ++i)
-    {
-        if (memory[i].state == Available)
-        {
+    for (int i = 0; i < num_lines; ++i) {
+        if (memory[i].state == Available) {
             proc_size--;
         }
-        else
-        {
+        else {
             proc_size = proc->lines;
             continue;
         }
 
-        if (proc_size == 0)
-        {
+        if (proc_size == 0) {
             index = i - proc->lines + 1;
             break;
         }
     }
 
     // If proc_size == 0 :: Space found
-    if (!proc_size && index != -1)
-    {
+    if (!proc_size && index != -1) {
         // Load process in memory
-        for (int i = index; i < proc->lines; ++i)
-        {
+        for (int i = index; i < (index + proc->lines); ++i) {
             memory[i].state = InUse;
             memory[i].pid = proc->pid;
         }
-        sem_post(semaphoreMemory);
         return index;
     }
-
-    sem_post(semaphoreMemory);
-
     return -1;
 }
 
-void releaseInSharedMemory(int index, ThreadProcess *proc)
-{
-    // *** AQUI TIENE QUE IR UN SEMAFORO
+int loadInSharedMemory(ThreadProcess *proc) {
+
+    int index = -1;
+
+    printf("Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
+    sem_wait(semaphoreMemory);
+
+    if (algoritmo == FirstFit) {
+        index = method_FirstFit(proc);
+    }
+    else if (algoritmo == BestFit) {
+        index = method_FirstFit(proc);
+    }
+    else {
+        index = method_FirstFit(proc);
+    }
+
+    sem_post(semaphoreMemory);
+    printf("Proceso %d adquirió semáforo de memoria\n", proc->pid);
+    printf("El size del proceso es: %d\n", proc->lines);
+
+    return index;
+}
+
+void releaseInSharedMemory(int index, ThreadProcess *proc) {
     sem_wait(semaphoreMemory);
 
     // Release asigned memory lines
-    for (int i = index; i < proc->lines; ++i)
-    {
+    for (int i = index; i < proc->lines; ++i) {
         memory[i].state = Available;
         memory[i].pid = -1;
     }
 
-    // *** AQUI TIENE QUE IR UN SEMAFORO
     sem_post(semaphoreMemory);
 }
 
-void initEnvironment()
-{
+void initEnvironment() {
     int shmid1 = getSharedMemorySegment(FILENAME, 's');
     int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
+    semaphoreMemory = sem_open(SNAME, 0);
 
-    if (shmid1 < 0 || shmid2 < 0)
-    {
+    if (shmid1 < 0 || shmid2 < 0) {
         printf("Failed getting segments in init environment");
+        exit(1);
+    }
+
+    if (semaphoreMemory == SEM_FAILED) {
+        printf("Error al abrir el semáforo\n");
         exit(1);
     }
 
@@ -109,94 +114,95 @@ void initEnvironment()
     num_lines = information->num_lines;
 }
 
-void releaseEnvironment()
-{
+void releaseEnvironment() {
     detachSharedMemorySegment(memory);
     detachSharedMemorySegment(information);
 }
 
-int getProccesID()
-{
+int getProccesID() {
     return currentProccesNumber;
 }
 
-void *searhForMemory()
-{
-    // Assign process in memory
-    int index = loadInSharedMemory(&args);
+void *searhForMemory(void* args) {
+    ThreadProcess* proc = (ThreadProcess*) args;
+    printf("> Process created: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
 
-    if (index == -1)
-    {
-        printf("Process couldnt be assigned -> End of process\n");
+    // Assign process in memory
+    int index = loadInSharedMemory(proc);
+
+    if (index == -1) {
+        printf("> Process couldnt be assigned -> End of process\n");
+
+        free(args);
         pthread_exit(NULL);
         return NULL;
     }
-    printf("Thread created: ID: %d - Lines: %d - Time: %d\n", args.pid, args.lines, args.time);
-    sleep(args.time);
+    sleep(proc->time);
 
     // Released occupied memory lines
-    releaseInSharedMemory(index, &args);
+    printf("> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
+    releaseInSharedMemory(index, proc);
 
+    free(args);
     pthread_exit(NULL);
     return NULL;
 }
 
-void *createProcesses(void *arg)
-{
+ThreadProcess* createProcess() {
+    ThreadProcess* args = (ThreadProcess*) malloc( sizeof( ThreadProcess ) );
+    args->pid = getProccesID();
+    args->lines = rand() % 10 + 1;
+    args->time = rand() % 41 + 20;
+    
+    // *** Mutex para el currentProcessNumber???
+    currentProccesNumber++;
+
+    return args;
+}
+
+void *createProcesses(void *arg) {
+    pthread_t thread;
+
     // !: while to create the process
+    printf("\n");
+    printf("\n");
     srand(time(NULL));
-    while (true)
-    {
+    while (true) {
 
-        args.pid = getProccesID();
-        currentProccesNumber++;
-        args.lines = rand() % 10 + 1;
-        args.time = rand() % 41 + 20;
-
-        pthread_create(&hilo, NULL, &searhForMemory, NULL);
+        pthread_create(&thread, NULL, &searhForMemory, createProcess());
         // pthread_join(hilo, NULL);
 
-        int delay = rand() % 31 + 30;
+        // int delay = rand() % 31 + 30;
+        int delay = 10;
+        printf("Main sleeping for %d seconds...\b", delay);
         sleep(delay);
     }
 }
 
-int main()
-{
+int main() {
     // Solicitar el tipo de algoritmoexit
-    enum Algoritmo algoritmo;
-
     printf("Seleccione el algoritmo de asignación de memoria:\n");
     printf("1. Best-Fit\n2. First-Fit\n3. Worst-Fit\n");
 
     int opcion;
     scanf("%d", &opcion);
 
-    switch (opcion)
-    {
-    case 1:
-        algoritmo = BestFit;
-        break;
-    case 2:
-        algoritmo = FirstFit;
-        break;
-    case 3:
-        algoritmo = WorstFit;
-        break;
-    default:
-        printf("Opción inválida\n");
-        exit(1);
+    switch (opcion) {
+        case 1:
+            algoritmo = BestFit;
+            break;
+        case 2:
+            algoritmo = FirstFit;
+            break;
+        case 3:
+            algoritmo = WorstFit;
+            break;
+        default:
+            printf("Opción inválida\n");
+            exit(1);
     }
 
     initEnvironment();
-
-    // !: abrir semaforo
-    semaphoreMemory = sem_open(SNAME, 0);
-    if (semaphoreMemory == SEM_FAILED)
-    {
-        printf("Error al abrir el semáforo\n");
-        exit(1);
-    }
 
     // // Create all pthreads 
     // for (int i = 0; i < THREAD_NUMBER; i++) {
@@ -212,7 +218,6 @@ int main()
     pthread_join(processCreatorThread, NULL);
 
     releaseEnvironment();
-    printf("Wrote data succesfully\n");
 
     // memoria = (Line*) shmat(shmid, NULL, 0);
     // num_lines = shmid / sizeof(Line);
