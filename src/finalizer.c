@@ -16,9 +16,22 @@ int main(int argc, char const *argv[]) {
     sem_t *sem = sem_open(SNAME, 0);
 
     if (sem == SEM_FAILED) {
-        printf("ERROR: Failed getting semaphore\n");
+        printf("ERROR: Failed getting semaphore - Finalizer\n");
         return 1;
     }
+
+    int closeStatus = sem_close(sem);
+    if (closeStatus < 0) {
+        printf("Failed closing semaphore - Finalizer\n");
+    }
+
+    int unlinkStatus = sem_unlink(SNAME);
+    if (unlinkStatus < 0) {
+        printf("Failed unlinking semaphore - Finalizer\n");
+        return 1;
+    }
+
+    printf("Semaphore released!\n");
 
     return 0;
 }
