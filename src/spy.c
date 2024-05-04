@@ -5,7 +5,7 @@
 #include <semaphore.h>
 #include <time.h>
 #include "utilities.h"
-#include "sharedMemory.c"
+#include "sharedMemory.h"
 
 // Semaphores
 sem_t *semaphoreMemory;
@@ -13,11 +13,18 @@ sem_t *semaphoreMemory;
 void showMemoryState(Line* memory, int lines) {
     sem_wait(semaphoreMemory);
 
+    printf("\nLine\tProcID\tLine state\n");
+    printf("--------------------------\n");
     for (int i = 0; i < lines; ++i) {
-        printf("Line %d: ID=%d - State=%s\n", i, memory[i].pid, (memory[i].state == Available) ? "Available" : "In Use");
+        printf("%d\t%d\t%s\n", i, memory[i].pid, (memory[i].state == Available) ? "Available" : "In Use");
     }
+    printf("--------------------------\n\n");
 
     sem_post(semaphoreMemory);
+}
+
+void showProcessesStates() {
+    return;
 }
 
 int main(int argc, char const *argv[]) {
@@ -27,7 +34,7 @@ int main(int argc, char const *argv[]) {
     semaphoreMemory = sem_open(SNAME, 0);
 
     if (shmid1 < 0 || shmid2 < 0) {
-        printf("Failed getting shared memory segment - Spy");
+        printf("Failed getting shared memory segment - Spy\n");
         return 1;
     }
     if (semaphoreMemory == SEM_FAILED) {
@@ -42,8 +49,6 @@ int main(int argc, char const *argv[]) {
 
     detachSharedMemorySegment(memory);
     detachSharedMemorySegment(information);
-
-    printf("Read data succesfully\n");
 
     return 0;
 }
