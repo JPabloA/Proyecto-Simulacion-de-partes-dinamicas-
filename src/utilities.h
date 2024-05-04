@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+#ifndef UTILITIES_H
+#define UTILITIES_H
+
 #define FILENAME "./sharedFile"
 #define SHARED_INFO "./sharedInfo"
 #define SNAME "/MemSemaphore"
@@ -32,3 +35,5 @@ typedef struct {
 typedef struct {
     int num_lines;
 } SharedInformation;
+
+#endif
