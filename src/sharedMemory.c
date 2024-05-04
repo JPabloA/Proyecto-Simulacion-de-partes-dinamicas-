@@ -4,6 +4,8 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+#include "sharedMemory.h"
+
 int createSharedMemorySegment(const char* filepath, int id, size_t size) {
     key_t key = ftok(filepath, id);
 
@@ -13,7 +15,7 @@ int createSharedMemorySegment(const char* filepath, int id, size_t size) {
         return -1;
     }
 
-    printf("Shared memory segment created with ID: %d and key: %x\n", shmid, key);
+    printf("\nShared memory segment created with ID: %d and key: %x\n", shmid, key);
     return shmid;
 }
 
@@ -26,7 +28,7 @@ int getSharedMemorySegment(const char* filepath, int id) {
         return -1;
     }
 
-    printf("Shared memory segment found with ID: %d and key: %x\n", shmid, key);
+    printf("\nShared memory segment found with ID: %d and key: %x\n", shmid, key);
     return shmid;
 }
 
@@ -38,7 +40,7 @@ void releaseSharedMemorySegment(const char* filepath, int id) {
         printf("ERROR: Failed releasing shared memory segment\n");
         return;
     }
-    printf("Released ID: %d\n", shmid);
+    printf("\nReleased ID: %d\n", shmid);
     printf("Shared memory segment released\n");
 }
 
@@ -61,5 +63,5 @@ void detachSharedMemorySegment(void* ptr) {
         return ;
     }
 
-    printf("Shared memory segment detach for attach ptr\n");
+    printf("\nShared memory segment detach for attach ptr\n");
 }
