@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include "utilities.h"
-#include "sharedMemory.c"
+#include "sharedMemory.h"
 
 // Thread Pool implementation
 #define THREAD_NUMBER 5

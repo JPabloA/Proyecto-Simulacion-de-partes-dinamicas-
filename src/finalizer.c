@@ -6,7 +6,7 @@
 #include <semaphore.h>
 
 #include "utilities.h"
-#include "sharedMemory.c"
+#include "sharedMemory.h"
 
 int main(int argc, char const *argv[]) {
 

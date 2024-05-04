@@ -8,7 +8,7 @@
 #include <semaphore.h>
 
 #include "utilities.h"
-#include "sharedMemory.c"
+#include "sharedMemory.h"
 
 sem_t semaphoreMemory;
 
@@ -30,11 +30,9 @@ void initMemoryLines(int shmid, int num_lines)
     Line *lines = (Line *)attachSharedMemorySegment(shmid);
 
     printf("Filling memory lines...\n");
-    for (int i = 0; i < num_lines; ++i)
-    {
+    for (int i = 0; i < num_lines; ++i) {
         lines[i].state = Available;
         lines[i].pid = -1;
-        lines[i].time = 0;
     }
     printf("Memory lines filled!\n");
 
@@ -47,13 +45,12 @@ int main(int argc, char const *argv[])
     printf("Enter the number of memory lines: ");
     scanf("%d", &num_lines);
 
-    // // Calculate the necessary memory space
+    // Calculate the necessary memory space
     int line_size = sizeof(Line); // * sizeof let me know the space that its needed for one line
     int memory_size = num_lines * line_size;
 
     sem_t *semaphoreMemory = sem_open(SNAME, O_CREAT, 0644, 1);
-    if (semaphoreMemory == SEM_FAILED)
-    {
+    if (semaphoreMemory == SEM_FAILED) {
         perror("Error al abrir el semáforo");
         exit(1);
     }
@@ -64,7 +61,7 @@ int main(int argc, char const *argv[])
     initMemoryLines(shmid1, num_lines);
     initSharedInformation(shmid2, num_lines);
 
-    printf("\nAll shared memory segments set\n");
+    printf("\n > All shared memory segments set\n\n");
 
     return 0;
 }
