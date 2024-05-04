@@ -10,7 +10,7 @@ EXE = $(patsubst $(SRC_DIR)/%.c,$(EXE_DIR)/%.out,$(SRC))
 all: $(EXE)
 
 $(EXE_DIR)/%.out: $(SRC_DIR)/%.c $(DEPENDENCIES)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) -o $@ $^
 
 # Run 'make clean' to remove all .out files
 clean:
