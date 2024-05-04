@@ -85,7 +85,7 @@ void releaseInSharedMemory(int index, ThreadProcess *proc) {
     sem_wait(semaphoreMemory);
 
     // Release asigned memory lines
-    for (int i = index; i < proc->lines; ++i) {
+    for (int i = index; (index + proc->lines); ++i) {
         memory[i].state = Available;
         memory[i].pid = -1;
     }
