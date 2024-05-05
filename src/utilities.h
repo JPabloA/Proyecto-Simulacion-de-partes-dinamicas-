@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+#ifndef UTILITIES_H
+#define UTILITIES_H
+
 #define FILENAME "./sharedFile"
 #define SHARED_INFO "./sharedInfo"
 #define SNAME "/MemSemaphore"
@@ -10,7 +13,7 @@ enum State
     Available
 };
 
-enum Algoritmo
+enum Algorithm
 {
     BestFit,
     FirstFit,
@@ -21,7 +24,6 @@ typedef struct
 {
     enum State state;
     int pid;
-    int time;
 } Line;
 
 typedef struct {
@@ -33,3 +35,5 @@ typedef struct {
 typedef struct {
     int num_lines;
 } SharedInformation;
+
+#endif
