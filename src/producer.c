@@ -7,8 +7,9 @@
 #include <time.h>
 #include <pthread.h>
 #include <errno.h>
-#include "utilities.h"
-#include "sharedMemory.h"
+
+#include "./utilities/utilities.h"
+#include "./utilities/sharedMemory.h"
 
 // Thread Pool implementation
 #define THREAD_NUMBER 5
@@ -67,17 +68,19 @@ int method_BestFit(ThreadProcess *proc)
 {
     int index = -1;
     int proc_size = proc->lines;
-    int best_fit = num_lines; // Initialize with maximum size
+    int best_fit = num_lines; // Initialize with the maximum possible value
+    int hole_index;
 
     // Find the smallest hole that can accommodate the process
     for (int i = 0; i < num_lines; ++i)
     {
-        if (memory[i].state == InUse)
-        {
-            continue; // Skip if the line is in use
+        int current_hole = 0;
+
+        if(memory[i].state != Available){
+            continue;
         }
 
-        int current_hole = 0;
+        // to check next lines
         for (int j = i; j < num_lines; ++j)
         {
             if (memory[j].state == Available)
@@ -88,34 +91,28 @@ int method_BestFit(ThreadProcess *proc)
             {
                 break;
             }
-            if (current_hole >= proc_size)
-            {
-                if (current_hole < best_fit)
-                {
-                    best_fit = current_hole;
-                    index = i;
-                }
-                break;
-            }
-            // Exit early if the current hole is already greater or equal to the best fit
-            if (current_hole >= best_fit)
-            {
-                break;
-            }
         }
-    }
-    // If a suitable hole is found, load the process into memory
-    if (index != -1)
-    {
-        for (int i = index; i < (index + proc->lines); ++i)
+
+        if (current_hole >= proc_size) // Only InUse space are gonna get here (current hole only are gonna be != than 0 if was empty spaces before)
         {
-            memory[i].state = InUse;
-            memory[i].pid = proc->pid;
+            if (current_hole < best_fit)
+            {
+                best_fit = current_hole; // best hole in this try
+                hole_index = i;
+            }
         }
-        return index;
+        i += current_hole;
     }
 
-    return -1;
+    // If a suitable hole is found, load the process into memory
+    index = hole_index;
+    for (int i = index; i < (index + proc->lines); ++i)
+    {
+        memory[i].state = InUse;
+        memory[i].pid = proc->pid;
+    }
+
+    return index;
 }
 
 int method_WorstFit(ThreadProcess *proc)
@@ -275,10 +272,10 @@ ThreadProcess *createProcess()
 {
     ThreadProcess *args = (ThreadProcess *)malloc(sizeof(ThreadProcess));
     args->pid = getProccesID();
-    args->lines = rand() % 10 + 1;
+    // args->lines = rand() % 5 + 1;
+    args->lines = 3;
     args->time = rand() % 41 + 20;
 
-    // *** Mutex para el currentProcessNumber???
     currentProccesNumber++;
 
     return args;
@@ -296,10 +293,10 @@ void *createProcesses(void *arg)
     {
 
         pthread_create(&thread, NULL, &searhForMemory, createProcess());
-        // pthread_join(hilo, NULL);
+        // pthread_join(thread, NULL);
 
-        // int delay = rand() % 31 + 30;
-        int delay = 10;
+        int delay = rand() % 31 + 30;
+        delay = 10;
         printf("Main sleeping for %d seconds...\b", delay);
         sleep(delay);
     }
