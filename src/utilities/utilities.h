@@ -5,6 +5,7 @@
 
 #define FILENAME "./sharedFile"
 #define SHARED_INFO "./sharedInfo"
+#define PROC_FILE "./sharedProcList"
 #define SNAME "/MemSemaphore"
 
 enum State
