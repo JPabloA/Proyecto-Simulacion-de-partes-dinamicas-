@@ -51,7 +51,9 @@ void showProcessesStates(Process_List* list) {
     initProcessListByDefault(list_procRunning);
     initProcessListByDefault(list_procBlocked);
 
-    // Set processes in each list
+    sem_wait(semaphoreProcList);
+
+    // Set processes in each list based on their state
     for (int i = 0; i < MAX_LIST_LENGTH; ++i) {
         switch (list[i].proc_state) {
             case WITH_MEMORY_ACCESS:
@@ -72,7 +74,8 @@ void showProcessesStates(Process_List* list) {
     printProcesses(list_withMemoryAccess, "Processes With Memory Access:", "With memory access");
     printProcesses(list_procRunning, "Processes Running:", "Running");
     printProcesses(list_procBlocked, "Blocked Processes:", "Blocked");
-    return;
+
+    sem_post(semaphoreProcList);
 }
 
 int main(int argc, char const *argv[]) {
@@ -82,7 +85,7 @@ int main(int argc, char const *argv[]) {
     semaphoreProcList = GetSemaphore(SNAME_PROC_LIST);
 
     if (semaphoreMemory == NULL || semaphoreProcList == NULL) {
-        printf("Failed getting memory semaphore - Spy\n");
+        printf("Failed getting memory semaphores - Spy\n");
         return 1;
     }
 
@@ -92,7 +95,7 @@ int main(int argc, char const *argv[]) {
     int shmid3 = getSharedMemorySegment(PROC_FILE, 'b');
 
     if (shmid1 < 0 || shmid2 < 0 || shmid3 < 0) {
-        printf("Failed getting shared memory segment - Spy\n");
+        printf("Failed getting shared memory segments - Spy\n");
         return 1;
     }
 
