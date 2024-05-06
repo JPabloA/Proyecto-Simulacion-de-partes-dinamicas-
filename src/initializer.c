@@ -5,13 +5,11 @@
 #include <sys/shm.h>
 #include <fcntl.h>    /* For O_* constants */
 #include <sys/stat.h> /* For mode constants */
-#include <semaphore.h>
 
 #include "./utilities/utilities.h"
 #include "./utilities/sharedMemory.h"
 #include "./utilities/process_list.h"
-
-sem_t semaphoreMemory;
+#include "./utilities/sharedSemaphore.h"
 
 void initSharedInformation(int shmid, int num_lines)
 {
@@ -71,11 +69,7 @@ void initProcessList(int shmid) {
     Process_List *list = (Process_List*)attachSharedMemorySegment(shmid);
 
     printf("Filling process list by default...\n");
-    for (int i = 0; i < MAX_LIST_LENGTH; i++) {
-        list[i].proc = NULL;
-        list[i].proc_state = NOT_DEFINED;
-        list[i].state = EMPTY;
-    }
+    initProcessListByDefault(list);
     printf("Process list initialized!\n");
 
     detachSharedMemorySegment(list);
@@ -91,10 +85,14 @@ int main(int argc, char const *argv[])
     int line_size = sizeof(Line); // * sizeof let me know the space that its needed for one line
     int memory_size = num_lines * line_size;
 
-    sem_t *semaphoreMemory = sem_open(SNAME, O_CREAT, 0644, 1);
-    if (semaphoreMemory == SEM_FAILED) {
-        perror("Error al abrir el semáforo");
-        exit(1);
+    // Open shared semaphore
+    if (OpenSemaphore(SNAME, O_CREAT) == NULL) {
+        printf("Failed opening memory semaphore - Initializer\n");
+        return 1;
+    }
+    if (OpenSemaphore(SNAME_PROC_LIST, O_CREAT) == NULL) {
+        printf("Failed opening memory semaphore - Initializer\n");
+        return 1;
     }
 
     int shmid1 = createSharedMemorySegment(FILENAME, 's', memory_size);

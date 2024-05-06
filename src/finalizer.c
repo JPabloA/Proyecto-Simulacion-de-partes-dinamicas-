@@ -3,10 +3,10 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <semaphore.h>
 
 #include "./utilities/utilities.h"
 #include "./utilities/sharedMemory.h"
+#include "./utilities/sharedSemaphore.h"
 
 int main(int argc, char const *argv[]) {
 
@@ -14,25 +14,20 @@ int main(int argc, char const *argv[]) {
     releaseSharedMemorySegment(SHARED_INFO, 'a');
     releaseSharedMemorySegment(PROC_FILE, 'b');
 
-    sem_t *sem = sem_open(SNAME, 0);
+    // Get shared semaphores
+    sem_t* semaphoreMemory = GetSemaphore(SNAME);
+    sem_t* semaphoreProcList = GetSemaphore(SNAME_PROC_LIST);
 
-    if (sem == SEM_FAILED) {
+    if (semaphoreMemory == NULL || semaphoreProcList == NULL) {
         printf("ERROR: Failed getting semaphore - Finalizer\n");
         return 1;
     }
 
-    int closeStatus = sem_close(sem);
-    if (closeStatus < 0) {
-        printf("Failed closing semaphore - Finalizer\n");
-    }
+    CloseSemaphore(semaphoreMemory);
+    CloseSemaphore(semaphoreProcList);
 
-    int unlinkStatus = sem_unlink(SNAME);
-    if (unlinkStatus < 0) {
-        printf("Failed unlinking semaphore - Finalizer\n");
-        return 1;
-    }
-
-    printf("Semaphore released!\n");
+    UnlinkSemaphore(SNAME);
+    UnlinkSemaphore(SNAME_PROC_LIST);
 
     return 0;
 }
