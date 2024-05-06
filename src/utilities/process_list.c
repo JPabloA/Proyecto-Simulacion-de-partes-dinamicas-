@@ -1,19 +1,22 @@
 #include "process_list.h"
 
-int addProcessToList(Process_List* list, ThreadProcess* proc, Process_State proc_state) {
-    int index = -1;
+void addProcessToList(Process_List* list, ThreadProcess* proc, Process_State proc_state) {
     for (int i = 0; i < MAX_LIST_LENGTH; i++) {
         if (list[i].state == EMPTY) {
             list[i].proc = proc;
+            proc->listIndex = i;
             list[i].proc_state = proc_state;
             list[i].state = OCCUPIED;
-
-            index = i;
+            printf("The current state of element in %d is Occupied", i);
             break;
         }
     }
+}
 
-    return index;
+void changeProcState(Process_List* list, Process_State newState, int index){
+    if (index < MAX_LIST_LENGTH){
+        list[index].proc_state = newState;
+    }
 }
 
 void removeProcessFromList(Process_List* list, int index) {

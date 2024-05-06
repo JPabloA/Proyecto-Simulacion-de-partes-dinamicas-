@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #include "./utilities/utilities.h"
+#include "./utilities/process_list.h"
 #include "./utilities/sharedMemory.h"
 
 // Thread Pool implementation
@@ -17,6 +18,7 @@ pthread_t threads[THREAD_NUMBER];
 
 Line *memory;
 SharedInformation *information;
+Process_List *processList;
 
 sem_t *semaphoreMemory, *semaphoreLog;
 
@@ -174,6 +176,10 @@ int loadInSharedMemory(ThreadProcess *proc)
     printf("[Aplicando metodo]: Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
     sem_wait(semaphoreMemory);
 
+    // !With Memory Access
+    // ? WE NEED TO ADD THE PROCESS TO THE LIST HERE (NO & because they are pointers)
+    //addProcessToList(processList, proc, WITH_MEMORY_ACCESS);
+
     if (algorithm == FirstFit)
     {
         index = method_FirstFit(proc);
@@ -188,6 +194,9 @@ int loadInSharedMemory(ThreadProcess *proc)
     }
 
     sem_post(semaphoreMemory);
+
+    // here is where it supposed to be the remove but the next state of the process is running so we only change the state
+
     printf("[Aplicando metodo]: Proceso %d adquirió semáforo de memoria\n", proc->pid);
     printf("[Aplicando metodo]: El size del proceso %d es: %d\n", proc->pid, proc->lines);
 
@@ -212,9 +221,10 @@ void initEnvironment()
 {
     int shmid1 = getSharedMemorySegment(FILENAME, 's');
     int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
+    int shmid3 = getSharedMemorySegment(PROC_FILE, 'b');
     semaphoreMemory = sem_open(SNAME, 0);
 
-    if (shmid1 < 0 || shmid2 < 0)
+    if (shmid1 < 0 || shmid2 < 0 || shmid3 < 0)
     {
         printf("Failed getting segments in init environment");
         exit(1);
@@ -228,6 +238,7 @@ void initEnvironment()
 
     memory = (Line *)attachSharedMemorySegment(shmid1);
     information = (SharedInformation *)attachSharedMemorySegment(shmid2);
+    processList = (Process_List *)attachSharedMemorySegment(shmid3);
 
     num_lines = information->num_lines;
 }
@@ -236,6 +247,7 @@ void releaseEnvironment()
 {
     detachSharedMemorySegment(memory);
     detachSharedMemorySegment(information);
+    detachSharedMemorySegment(processList);
 }
 
 int getProccesID()
@@ -259,7 +271,14 @@ void *searhForMemory(void *args)
         pthread_exit(NULL);
         return NULL;
     }
+    // !Running proccesses 
+    changeProcState (processList, RUNNING, proc->listIndex);
     sleep(proc->time);
+
+    // !Remove the process from the list (ND->Blocked->WMA->Running->ND)
+    if (proc->listIndex != 0 ) {
+        removeProcessFromList(processList, proc->listIndex);       
+    }
 
     // Released occupied memory lines
     printf(">>> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
@@ -276,7 +295,6 @@ ThreadProcess *createProcess()
     args->lines = rand() % 10 + 1;
     // args->lines = 3;
     args->time = rand() % 41 + 20;
-
     currentProccesNumber++;
 
     return args;
