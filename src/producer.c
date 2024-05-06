@@ -261,14 +261,18 @@ void *searhForMemory(void *args)
         return NULL;
     }
     // !Running proccesses 
-    changeProcState (processList, RUNNING, proc->listIndex);
+    if (proc->listIndex != -1)
+    {
+        changeProcState (processList, RUNNING, proc->listIndex);
+    }
     sleep(proc->time);
 
     // !Remove the process from the list (ND->Blocked->WMA->Running->ND)
+    /*
     if (proc->listIndex != 0 ) {
         removeProcessFromList(processList, proc->listIndex);       
     }
-
+    */
     // Released occupied memory lines
     printf(">>> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
     releaseInSharedMemory(index, proc);
@@ -282,6 +286,7 @@ ThreadProcess *createProcess()
     ThreadProcess *args = (ThreadProcess *)malloc(sizeof(ThreadProcess));
     args->pid = getProccesID();
     args->lines = rand() % 10 + 1;
+    args->listIndex = -1;
     // args->lines = 3;
     args->time = rand() % 41 + 20;
     currentProccesNumber++;
