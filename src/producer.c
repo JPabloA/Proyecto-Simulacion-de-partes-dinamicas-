@@ -18,7 +18,6 @@ Line *memory;
 SharedInformation *information;
 
 sem_t *semaphoreMemory, *semaphoreLog;
-FILE *log;
 
 int num_lines;
 int currentProccesNumber;
