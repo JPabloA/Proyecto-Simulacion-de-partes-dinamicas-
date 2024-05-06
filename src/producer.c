@@ -69,7 +69,7 @@ int method_BestFit(ThreadProcess *proc)
     int index = -1;
     int proc_size = proc->lines;
     int best_fit = num_lines; // Initialize with the maximum possible value
-    int hole_index;
+    int hole_index = -1;
 
     // Find the smallest hole that can accommodate the process
     for (int i = 0; i < num_lines; ++i)
@@ -106,7 +106,7 @@ int method_BestFit(ThreadProcess *proc)
 
     // If a suitable hole is found, load the process into memory
     index = hole_index;
-    for (int i = index; i < (index + proc->lines); ++i)
+    for (int i = index; i < (index + proc->lines) && index != -1; ++i)
     {
         memory[i].state = InUse;
         memory[i].pid = proc->pid;
@@ -120,7 +120,7 @@ int method_WorstFit(ThreadProcess *proc)
     int index = -1;
     int proc_size = proc->lines;
     int worst_fit = 1; // Initialize with the min possible value
-    int hole_index;
+    int hole_index = -1;
 
     // Find the largest hole that can accommodate the process
     for (int i = 0; i < num_lines; ++i)
@@ -157,7 +157,7 @@ int method_WorstFit(ThreadProcess *proc)
 
     // If a suitable hole is found, load the process into memory
     index = hole_index;
-    for (int i = index; i < (index + proc->lines); ++i)
+    for (int i = index; i < (index + proc->lines) && index != -1; ++i)
     {
         memory[i].state = InUse;
         memory[i].pid = proc->pid;
@@ -171,7 +171,7 @@ int loadInSharedMemory(ThreadProcess *proc)
 
     int index = -1;
 
-    printf("Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
+    printf("[Aplicando metodo]: Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
     sem_wait(semaphoreMemory);
 
     if (algorithm == FirstFit)
@@ -188,8 +188,8 @@ int loadInSharedMemory(ThreadProcess *proc)
     }
 
     sem_post(semaphoreMemory);
-    printf("Proceso %d adquirió semáforo de memoria\n", proc->pid);
-    printf("El size del proceso es: %d\n", proc->lines);
+    printf("[Aplicando metodo]: Proceso %d adquirió semáforo de memoria\n", proc->pid);
+    printf("[Aplicando metodo]: El size del proceso %d es: %d\n", proc->pid, proc->lines);
 
     return index;
 }
@@ -246,14 +246,14 @@ int getProccesID()
 void *searhForMemory(void *args)
 {
     ThreadProcess *proc = (ThreadProcess *)args;
-    printf("> Process created: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
+    printf(">>> Process created: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
 
     // Assign process in memory
     int index = loadInSharedMemory(proc);
 
     if (index == -1)
     {
-        printf("> Process couldnt be assigned -> End of process\n");
+        printf(">>> Process couldnt be assigned -> End of process\n");
 
         free(args);
         pthread_exit(NULL);
@@ -262,7 +262,7 @@ void *searhForMemory(void *args)
     sleep(proc->time);
 
     // Released occupied memory lines
-    printf("> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
+    printf(">>> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
     releaseInSharedMemory(index, proc);
     free(args);
     pthread_exit(NULL);
@@ -273,8 +273,8 @@ ThreadProcess *createProcess()
 {
     ThreadProcess *args = (ThreadProcess *)malloc(sizeof(ThreadProcess));
     args->pid = getProccesID();
-    // args->lines = rand() % 5 + 1;
-    args->lines = 3;
+    args->lines = rand() % 10 + 1;
+    // args->lines = 3;
     args->time = rand() % 41 + 20;
 
     currentProccesNumber++;
@@ -298,7 +298,6 @@ void *createProcesses(void *arg)
 
         int delay = rand() % 31 + 30;
         delay = 10;
-        printf("Main sleeping for %d seconds...\b", delay);
         sleep(delay);
     }
 }
