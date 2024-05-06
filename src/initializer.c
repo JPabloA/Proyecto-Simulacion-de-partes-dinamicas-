@@ -31,29 +31,36 @@ void initMemoryLines(int shmid, int num_lines)
     Line *lines = (Line *)attachSharedMemorySegment(shmid);
 
     printf("Filling memory lines...\n");
+    // *** Default filling
+    // for (int i = 0; i < num_lines; ++i) {
+    //     lines[i].state = Available;
+    //     lines[i].pid = -1;
+    // }
+
+    // *** For testing
     for (int i = 0; i < num_lines; ++i) {
         lines[i].state = InUse;
         lines[i].pid = 99;
     }
     // *** Para Worst Fit
-    // for (int i = 1; i < 5; ++i) {
-    //     lines[i].state = Available;
-    //     lines[i].pid = -1;
-    // }
-    // for (int i = 7; i < num_lines; ++i) {
-    //     lines[i].state = Available;
-    //     lines[i].pid = -1;
-    // }
+    for (int i = 1; i < 5; ++i) {
+        lines[i].state = Available;
+        lines[i].pid = -1;
+    }
+    for (int i = 7; i < num_lines; ++i) {
+        lines[i].state = Available;
+        lines[i].pid = -1;
+    }
 
     // *** Para Best Fit
-    for (int i = 0; i < 8; ++i) {
-        lines[i].state = Available;
-        lines[i].pid = -1;
-    }
-    for (int i = 9; i < num_lines; ++i) {
-        lines[i].state = Available;
-        lines[i].pid = -1;
-    }
+    // for (int i = 0; i < 8; ++i) {
+    //     lines[i].state = Available;
+    //     lines[i].pid = -1;
+    // }
+    // for (int i = 9; i < num_lines; ++i) {
+    //     lines[i].state = Available;
+    //     lines[i].pid = -1;
+    // }
     printf("Memory lines filled!\n");
 
     detachSharedMemorySegment(lines);
