@@ -25,30 +25,37 @@ int currentProccesNumber;
 
 enum Algorithm algorithm;
 
-int method_FirstFit(ThreadProcess *proc) {
+int method_FirstFit(ThreadProcess *proc)
+{
     int index = -1;
     int proc_size = proc->lines;
 
     // Check if spaces are available
-    for (int i = 0; i < num_lines; ++i) {
-        if (memory[i].state == Available) {
+    for (int i = 0; i < num_lines; ++i)
+    {
+        if (memory[i].state == Available)
+        {
             proc_size--;
         }
-        else {
+        else
+        {
             proc_size = proc->lines;
             continue;
         }
 
-        if (proc_size == 0) {
+        if (proc_size == 0)
+        {
             index = i - proc->lines + 1;
             break;
         }
     }
 
     // If proc_size == 0 :: Space found
-    if (!proc_size && index != -1) {
+    if (!proc_size && index != -1)
+    {
         // Load process in memory
-        for (int i = index; i < (index + proc->lines); ++i) {
+        for (int i = index; i < (index + proc->lines); ++i)
+        {
             memory[i].state = InUse;
             memory[i].pid = proc->pid;
         }
@@ -57,21 +64,130 @@ int method_FirstFit(ThreadProcess *proc) {
     return -1;
 }
 
-int loadInSharedMemory(ThreadProcess *proc) {
+int method_BestFit(ThreadProcess *proc)
+{
+    int index = -1;
+    int proc_size = proc->lines;
+    int best_fit = num_lines; // Initialize with maximum size
+
+    // Find the smallest hole that can accommodate the process
+    for (int i = 0; i < num_lines; ++i)
+    {
+        if (memory[i].state == InUse)
+        {
+            continue; // Skip if the line is in use
+        }
+
+        int current_hole = 0;
+        for (int j = i; j < num_lines; ++j)
+        {
+            if (memory[j].state == Available)
+            {
+                current_hole++;
+            }
+            else
+            {
+                break;
+            }
+            if (current_hole >= proc_size)
+            {
+                if (current_hole < best_fit)
+                {
+                    best_fit = current_hole;
+                    index = i;
+                }
+                break;
+            }
+            // Exit early if the current hole is already greater or equal to the best fit
+            if (current_hole >= best_fit)
+            {
+                break;
+            }
+        }
+    }
+    // If a suitable hole is found, load the process into memory
+    if (index != -1)
+    {
+        for (int i = index; i < (index + proc->lines); ++i)
+        {
+            memory[i].state = InUse;
+            memory[i].pid = proc->pid;
+        }
+        return index;
+    }
+
+    return -1;
+}
+
+int method_WorstFit(ThreadProcess *proc)
+{
+    int index = -1;
+    int proc_size = proc->lines;
+    int worst_fit = -1; // Initialize with minimum size
+
+    // Find the largest hole that can accommodate the process
+    for (int i = 0; i < num_lines; ++i)
+    {
+        if (memory[i].state == InUse)
+        {
+            continue; // Skip if the line is in use
+        }
+
+        int current_hole = 0;
+        for (int j = i; j < num_lines; ++j)
+        {
+            if (memory[j].state == Available)
+            {
+                current_hole++;
+            }
+            else
+            {
+                break;
+            }
+            if (current_hole >= proc_size)
+            {
+                if (current_hole > worst_fit)
+                {
+                    worst_fit = current_hole;
+                    index = i;
+                }
+                break;
+            }
+        }
+    }
+    // If a suitable hole is found, load the process into memory
+    if (index != -1)
+    {
+        for (int i = index; i < (index + proc->lines); ++i)
+        {
+            memory[i].state = InUse;
+            memory[i].pid = proc->pid;
+        }
+        return index;
+    }
+
+    return -1;
+}
+
+int loadInSharedMemory(ThreadProcess *proc)
+{
 
     int index = -1;
 
     printf("Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
     sem_wait(semaphoreMemory);
 
-    if (algorithm == FirstFit) {
+    if (algorithm == FirstFit)
+    {
         index = method_FirstFit(proc);
     }
-    else if (algorithm == BestFit) {
-        index = method_FirstFit(proc);
+    else if (algorithm == BestFit)
+    {
+        index = method_BestFit(proc);
     }
-    else {
-        index = method_FirstFit(proc);
+    else
+    {
+        index = method_WorstFit(proc);
     }
 
     sem_post(semaphoreMemory);
@@ -81,11 +197,13 @@ int loadInSharedMemory(ThreadProcess *proc) {
     return index;
 }
 
-void releaseInSharedMemory(int index, ThreadProcess *proc) {
+void releaseInSharedMemory(int index, ThreadProcess *proc)
+{
     sem_wait(semaphoreMemory);
 
     // Release asigned memory lines
-    for (int i = index; (index + proc->lines); ++i) {
+    for (int i = index; (index + proc->lines); ++i)
+    {
         memory[i].state = Available;
         memory[i].pid = -1;
     }
@@ -93,17 +211,20 @@ void releaseInSharedMemory(int index, ThreadProcess *proc) {
     sem_post(semaphoreMemory);
 }
 
-void initEnvironment() {
+void initEnvironment()
+{
     int shmid1 = getSharedMemorySegment(FILENAME, 's');
     int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
     semaphoreMemory = sem_open(SNAME, 0);
 
-    if (shmid1 < 0 || shmid2 < 0) {
+    if (shmid1 < 0 || shmid2 < 0)
+    {
         printf("Failed getting segments in init environment");
         exit(1);
     }
 
-    if (semaphoreMemory == SEM_FAILED) {
+    if (semaphoreMemory == SEM_FAILED)
+    {
         printf("Error al abrir el semáforo\n");
         exit(1);
     }
@@ -114,23 +235,27 @@ void initEnvironment() {
     num_lines = information->num_lines;
 }
 
-void releaseEnvironment() {
+void releaseEnvironment()
+{
     detachSharedMemorySegment(memory);
     detachSharedMemorySegment(information);
 }
 
-int getProccesID() {
+int getProccesID()
+{
     return currentProccesNumber;
 }
 
-void *searhForMemory(void* args) {
-    ThreadProcess* proc = (ThreadProcess*) args;
+void *searhForMemory(void *args)
+{
+    ThreadProcess *proc = (ThreadProcess *)args;
     printf("> Process created: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
 
     // Assign process in memory
     int index = loadInSharedMemory(proc);
 
-    if (index == -1) {
+    if (index == -1)
+    {
         printf("> Process couldnt be assigned -> End of process\n");
 
         free(args);
@@ -148,26 +273,29 @@ void *searhForMemory(void* args) {
     return NULL;
 }
 
-ThreadProcess* createProcess() {
-    ThreadProcess* args = (ThreadProcess*) malloc( sizeof( ThreadProcess ) );
+ThreadProcess *createProcess()
+{
+    ThreadProcess *args = (ThreadProcess *)malloc(sizeof(ThreadProcess));
     args->pid = getProccesID();
     args->lines = rand() % 10 + 1;
     args->time = rand() % 41 + 20;
-    
+
     // *** Mutex para el currentProcessNumber???
     currentProccesNumber++;
 
     return args;
 }
 
-void *createProcesses(void *arg) {
+void *createProcesses(void *arg)
+{
     pthread_t thread;
 
     // !: while to create the process
     printf("\n");
     printf("\n");
     srand(time(NULL));
-    while (true) {
+    while (true)
+    {
 
         pthread_create(&thread, NULL, &searhForMemory, createProcess());
         // pthread_join(hilo, NULL);
@@ -179,7 +307,8 @@ void *createProcesses(void *arg) {
     }
 }
 
-int main() {
+int main()
+{
     // Solicitar el tipo de algorithmexit
     printf("Seleccione el algorithm de asignación de memoria:\n");
     printf("1. Best-Fit\n2. First-Fit\n3. Worst-Fit\n");
@@ -187,28 +316,29 @@ int main() {
     int opcion;
     scanf("%d", &opcion);
 
-    switch (opcion) {
-        case 1:
-            algorithm = BestFit;
-            break;
-        case 2:
-            algorithm = FirstFit;
-            break;
-        case 3:
-            algorithm = WorstFit;
-            break;
-        default:
-            printf("Opción inválida\n");
-            exit(1);
+    switch (opcion)
+    {
+    case 1:
+        algorithm = BestFit;
+        break;
+    case 2:
+        algorithm = FirstFit;
+        break;
+    case 3:
+        algorithm = WorstFit;
+        break;
+    default:
+        printf("Opción inválida\n");
+        exit(1);
     }
 
     initEnvironment();
 
-    // // Create all pthreads 
+    // // Create all pthreads
     // for (int i = 0; i < THREAD_NUMBER; i++) {
     //     pthread_create(&threads[i], NULL, &startThread, NULL);
-    // }  
-    // // Join all pthreads 
+    // }
+    // // Join all pthreads
     // for (int i = 0; i < THREAD_NUMBER; i++) {
     //     pthread_join(threads[0], NULL);
     // }
