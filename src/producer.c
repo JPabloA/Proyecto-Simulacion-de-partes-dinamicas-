@@ -15,15 +15,24 @@
 #define THREAD_NUMBER 5
 pthread_t threads[THREAD_NUMBER];
 
+// Share memory segments - Manager structures
 Line *memory;
 SharedInformation *information;
 
+// Share semaphores
 sem_t *semaphoreMemory, *semaphoreLog;
 
+// Global variables
 int num_lines;
 int currentProccesNumber;
-
 enum Algorithm algorithm;
+
+void setProcessInMemory(ThreadProcess* proc, int index) {
+    for (int i = index; i < (index + proc->lines) && index != -1; ++i) {
+        memory[i].state = InUse;
+        memory[i].pid = proc->pid;
+    }
+}
 
 int method_FirstFit(ThreadProcess *proc)
 {
@@ -31,37 +40,17 @@ int method_FirstFit(ThreadProcess *proc)
     int proc_size = proc->lines;
 
     // Check if spaces are available
-    for (int i = 0; i < num_lines; ++i)
-    {
-        if (memory[i].state == Available)
-        {
-            proc_size--;
-        }
-        else
-        {
-            proc_size = proc->lines;
-            continue;
-        }
+    for (int i = 0; i < num_lines; ++i) {
+        proc_size = (memory[i].state == Available) ? proc_size - 1 : proc->lines;
 
-        if (proc_size == 0)
-        {
+        if (proc_size == 0) {
             index = i - proc->lines + 1;
             break;
         }
     }
 
-    // If proc_size == 0 :: Space found
-    if (!proc_size && index != -1)
-    {
-        // Load process in memory
-        for (int i = index; i < (index + proc->lines); ++i)
-        {
-            memory[i].state = InUse;
-            memory[i].pid = proc->pid;
-        }
-        return index;
-    }
-    return -1;
+    setProcessInMemory(proc, index);
+    return index;
 }
 
 int method_BestFit(ThreadProcess *proc)
