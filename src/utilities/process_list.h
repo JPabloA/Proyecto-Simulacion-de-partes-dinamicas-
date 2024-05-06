@@ -6,10 +6,10 @@
 #define MAX_LIST_LENGTH 20
 
 typedef enum Process_State {
-    WITH_MEMORY_ACCESS,
-    RUNNING,
-    BLOCKED,
-    NOT_DEFINED
+    WITH_MEMORY_ACCESS, //*Listo 
+    RUNNING, // *Listo
+    BLOCKED, //!Falta
+    NOT_DEFINED // *Listo
 }Process_State;
 
 typedef enum ListNode_State {
@@ -25,7 +25,9 @@ typedef struct Process_List {
 
 void initProcessListByDefault(Process_List* list);
 
-int addProcessToList(Process_List* list, ThreadProcess* proc, Process_State proc_state);
+void addProcessToList(Process_List* list, ThreadProcess* proc, Process_State proc_state);
+
+void changeProcState(Process_List* list, Process_State newState, int index);
 
 void removeProcessFromList(Process_List* list, int index);
 

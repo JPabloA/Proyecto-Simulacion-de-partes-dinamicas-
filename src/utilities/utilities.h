@@ -32,6 +32,7 @@ typedef struct {
     int pid;
     int time;
     int lines;
+    int listIndex;
 } ThreadProcess;
 
 typedef struct {
