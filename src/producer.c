@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <sys/shm.h>
-#include <semaphore.h>
 #include <time.h>
 #include <pthread.h>
 #include <errno.h>
@@ -11,6 +10,7 @@
 #include "./utilities/utilities.h"
 #include "./utilities/process_list.h"
 #include "./utilities/sharedMemory.h"
+#include "./utilities/sharedSemaphore.h"
 
 // Thread Pool implementation
 #define THREAD_NUMBER 5
@@ -22,7 +22,7 @@ SharedInformation *information;
 Process_List *processList;
 
 // Share semaphores
-sem_t *semaphoreMemory, *semaphoreLog;
+sem_t *semaphoreMemory, *semaphoreLog, *semaphoreProcList;
 
 // Global variables
 int num_lines;
@@ -206,22 +206,27 @@ void releaseInSharedMemory(int index, ThreadProcess *proc)
     sem_post(semaphoreMemory);
 }
 
-void initEnvironment()
-{
+void initEnvironment() {
+    // Get semaphores
+    semaphoreMemory = GetSemaphore(SNAME);
+    semaphoreProcList = GetSemaphore(SNAME_PROC_LIST);
+
+    if (semaphoreMemory == NULL) {
+        printf("ERROR: Failed getting memory semaphore - Producer\n");
+        exit(1);
+    }
+    if (semaphoreProcList == NULL) {
+        printf("ERROR: Failed getting proc list semaphore - Producer\n");
+        exit(1);
+    }
+
     int shmid1 = getSharedMemorySegment(FILENAME, 's');
     int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
     int shmid3 = getSharedMemorySegment(PROC_FILE, 'b');
-    semaphoreMemory = sem_open(SNAME, 0);
 
     if (shmid1 < 0 || shmid2 < 0 || shmid3 < 0)
     {
         printf("Failed getting segments in init environment");
-        exit(1);
-    }
-
-    if (semaphoreMemory == SEM_FAILED)
-    {
-        printf("Error al abrir el semáforo\n");
         exit(1);
     }
 
@@ -296,11 +301,10 @@ ThreadProcess *createProcess()
 
 void *createProcesses(void *arg)
 {
+    printf("\n\n");
     pthread_t thread;
 
     // !: while to create the process
-    printf("\n");
-    printf("\n");
     srand(time(NULL));
     while (true)
     {
