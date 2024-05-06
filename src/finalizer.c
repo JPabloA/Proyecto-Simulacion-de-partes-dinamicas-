@@ -5,13 +5,14 @@
 #include <sys/shm.h>
 #include <semaphore.h>
 
-#include "utilities.h"
-#include "sharedMemory.h"
+#include "./utilities/utilities.h"
+#include "./utilities/sharedMemory.h"
 
 int main(int argc, char const *argv[]) {
 
     releaseSharedMemorySegment(FILENAME, 's');
     releaseSharedMemorySegment(SHARED_INFO, 'a');
+    releaseSharedMemorySegment(PROC_FILE, 'b');
 
     sem_t *sem = sem_open(SNAME, 0);
 
