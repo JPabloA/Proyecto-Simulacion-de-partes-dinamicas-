@@ -201,7 +201,7 @@ void releaseInSharedMemory(int index, ThreadProcess *proc)
     sem_wait(semaphoreMemory);
 
     // Release asigned memory lines
-    for (int i = index; (index + proc->lines); ++i)
+    for (int i = index; i < (index + proc->lines); ++i) 
     {
         memory[i].state = Available;
         memory[i].pid = -1;
@@ -266,7 +266,6 @@ void *searhForMemory(void *args)
     // Released occupied memory lines
     printf("> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
     releaseInSharedMemory(index, proc);
-
     free(args);
     pthread_exit(NULL);
     return NULL;
