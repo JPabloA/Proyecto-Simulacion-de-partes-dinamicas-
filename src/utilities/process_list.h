@@ -23,6 +23,8 @@ typedef struct Process_List {
     ListNode_State state;
 }Process_List;
 
+void initProcessListByDefault(Process_List* list);
+
 int addProcessToList(Process_List* list, ThreadProcess* proc, Process_State proc_state);
 
 void removeProcessFromList(Process_List* list, int index);

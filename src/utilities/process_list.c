@@ -1,5 +1,13 @@
 #include "process_list.h"
 
+void initProcessListByDefault(Process_List* list) {
+    for (int i = 0; i < MAX_LIST_LENGTH; i++) {
+        list[i].proc = NULL;
+        list[i].proc_state = NOT_DEFINED;
+        list[i].state = EMPTY;
+    }
+}
+
 int addProcessToList(Process_List* list, ThreadProcess* proc, Process_State proc_state) {
     int index = -1;
     for (int i = 0; i < MAX_LIST_LENGTH; i++) {
