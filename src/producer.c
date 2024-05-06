@@ -119,17 +119,19 @@ int method_WorstFit(ThreadProcess *proc)
 {
     int index = -1;
     int proc_size = proc->lines;
-    int worst_fit = -1; // Initialize with minimum size
+    int worst_fit = 1; // Initialize with the min possible value
+    int hole_index;
 
     // Find the largest hole that can accommodate the process
     for (int i = 0; i < num_lines; ++i)
     {
-        if (memory[i].state == InUse)
-        {
-            continue; // Skip if the line is in use
+        int current_hole = 0;
+
+        if(memory[i].state != Available){
+            continue;
         }
 
-        int current_hole = 0;
+        // to check next lines
         for (int j = i; j < num_lines; ++j)
         {
             if (memory[j].state == Available)
@@ -140,29 +142,28 @@ int method_WorstFit(ThreadProcess *proc)
             {
                 break;
             }
-            if (current_hole >= proc_size)
+        }
+
+        if (current_hole >= proc_size) // Only InUse space are gonna get here (current hole only are gonna be != than 0 if was empty spaces before)
+        {
+            if (current_hole > worst_fit)
             {
-                if (current_hole > worst_fit)
-                {
-                    worst_fit = current_hole;
-                    index = i;
-                }
-                break;
+                worst_fit = current_hole; // best hole in this try
+                hole_index = i;
             }
         }
-    }
-    // If a suitable hole is found, load the process into memory
-    if (index != -1)
-    {
-        for (int i = index; i < (index + proc->lines); ++i)
-        {
-            memory[i].state = InUse;
-            memory[i].pid = proc->pid;
-        }
-        return index;
+        i += current_hole;
     }
 
-    return -1;
+    // If a suitable hole is found, load the process into memory
+    index = hole_index;
+    for (int i = index; i < (index + proc->lines); ++i)
+    {
+        memory[i].state = InUse;
+        memory[i].pid = proc->pid;
+    }
+
+    return index;
 }
 
 int loadInSharedMemory(ThreadProcess *proc)
