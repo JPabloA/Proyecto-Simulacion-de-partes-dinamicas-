@@ -28,14 +28,14 @@ void showMemoryState(Line* memory, int lines) {
     sem_post(semaphoreMemory);
 }
 
-void printProcesses(Process_List* list, char* print_title, char* status_text) {
+void printProcesses(Process_List* list, char* print_title, char* status_text, Process_State verify_state) {
     printf(" %s\n", print_title);
     printf(" +--------------------------\n");
     printf(" | ProcID\tProc State\n");
     printf(" +--------------------------\n");
 
     for (int i = 0; i < MAX_LIST_LENGTH && list[i].state != EMPTY; i++) {
-        printf(" | %d\t%s\n", list[i].pid, (list[i].proc_state == WITH_MEMORY_ACCESS) ? status_text : "Is something wrong");
+        printf(" | %d\t\t%s\n", list[i].pid, (list[i].proc_state == verify_state) ? status_text : "Is something wrong");
     }
     printf("\n");
     
@@ -71,9 +71,9 @@ void showProcessesStates(Process_List* list) {
     }
 
     printf(" > Processes States:\n\n");
-    printProcesses(list_withMemoryAccess, "Processes With Memory Access:", "With memory access");
-    printProcesses(list_procRunning, "Processes Running:", "Running");
-    printProcesses(list_procBlocked, "Blocked Processes:", "Blocked");
+    printProcesses(list_withMemoryAccess, "Processes With Memory Access:", "With memory access", WITH_MEMORY_ACCESS);
+    printProcesses(list_procRunning, "Processes Running:", "Running", RUNNING);
+    printProcesses(list_procBlocked, "Blocked Processes:", "Blocked", BLOCKED);
 
     sem_post(semaphoreProcList);
 }
