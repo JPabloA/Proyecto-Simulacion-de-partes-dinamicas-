@@ -161,12 +161,14 @@ int loadInSharedMemory(ThreadProcess *proc)
 {
 
     int index = -1;
+    int posInList = -1;
 
     printf("[Aplicando metodo]: Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
     
     // ! to add the process info to the list
     sem_wait(semaphoreProcList);
-    addProcessToList(processList, proc, BLOCKED);
+    posInList = addProcessToList(processList, proc->pid, BLOCKED);
+    proc->listIndex = posInList;
     sem_post(semaphoreProcList);
 
     sem_wait(semaphoreMemory);
