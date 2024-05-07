@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -std=c11
 SRC_DIR = src
 EXE_DIR = .
 SRC = $(SRC_DIR)/initializer.c $(SRC_DIR)/finalizer.c $(SRC_DIR)/producer.c $(SRC_DIR)/spy.c
-DEPENDENCIES = $(SRC_DIR)/sharedMemory.c $(SRC_DIR)/utilities.h
+DEPENDENCIES = $(SRC_DIR)/utilities/sharedMemory.c $(SRC_DIR)/utilities/utilities.h $(SRC_DIR)/utilities/process_list.c $(SRC_DIR)/utilities/sharedSemaphore.c
 EXE = $(patsubst $(SRC_DIR)/%.c,$(EXE_DIR)/%.out,$(SRC))
 
 all: $(EXE)

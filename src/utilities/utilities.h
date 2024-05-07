@@ -5,7 +5,9 @@
 
 #define FILENAME "./sharedFile"
 #define SHARED_INFO "./sharedInfo"
+#define PROC_FILE "./sharedProcList"
 #define SNAME "/MemSemaphore"
+#define SNAME_PROC_LIST "/ProcListSemaphore"
 
 enum State
 {
@@ -30,6 +32,7 @@ typedef struct {
     int pid;
     int time;
     int lines;
+    int listIndex;
 } ThreadProcess;
 
 typedef struct {

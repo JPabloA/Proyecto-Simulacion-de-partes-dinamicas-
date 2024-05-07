@@ -3,35 +3,36 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <semaphore.h>
 
-#include "utilities.h"
-#include "sharedMemory.h"
+#include "./utilities/utilities.h"
+#include "./utilities/sharedMemory.h"
+#include "./utilities/sharedSemaphore.h"
 
 int main(int argc, char const *argv[]) {
 
     releaseSharedMemorySegment(FILENAME, 's');
     releaseSharedMemorySegment(SHARED_INFO, 'a');
+    releaseSharedMemorySegment(PROC_FILE, 'b');
 
-    sem_t *sem = sem_open(SNAME, 0);
+    // Get shared semaphores
+    sem_t* semaphoreMemory = GetSemaphore(SNAME);
+    sem_t* semaphoreProcList = GetSemaphore(SNAME_PROC_LIST);
 
-    if (sem == SEM_FAILED) {
-        printf("ERROR: Failed getting semaphore - Finalizer\n");
-        return 1;
+    if (semaphoreMemory == NULL) {
+        printf("ERROR: Failed getting memory semaphore - Finalizer\n");
+    }
+    else {
+        CloseSemaphore(semaphoreMemory);
+        UnlinkSemaphore(SNAME);
     }
 
-    int closeStatus = sem_close(sem);
-    if (closeStatus < 0) {
-        printf("Failed closing semaphore - Finalizer\n");
+    if (semaphoreProcList == NULL) {
+        printf("ERROR: Failed getting proc list semaphore - Finalizer\n");
     }
-
-    int unlinkStatus = sem_unlink(SNAME);
-    if (unlinkStatus < 0) {
-        printf("Failed unlinking semaphore - Finalizer\n");
-        return 1;
+    else {
+        CloseSemaphore(semaphoreProcList);
+        UnlinkSemaphore(SNAME_PROC_LIST);
     }
-
-    printf("Semaphore released!\n");
 
     return 0;
 }

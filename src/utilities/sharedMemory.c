@@ -15,7 +15,7 @@ int createSharedMemorySegment(const char* filepath, int id, size_t size) {
         return -1;
     }
 
-    printf("\nShared memory segment created with ID: %d and key: %x\n", shmid, key);
+    printf("Shared memory segment created with ID: %d and key: %x\n", shmid, key);
     return shmid;
 }
 
@@ -28,7 +28,7 @@ int getSharedMemorySegment(const char* filepath, int id) {
         return -1;
     }
 
-    printf("\nShared memory segment found with ID: %d and key: %x\n", shmid, key);
+    printf("Shared memory segment found with ID: %d and key: %x\n", shmid, key);
     return shmid;
 }
 
@@ -41,7 +41,7 @@ void releaseSharedMemorySegment(const char* filepath, int id) {
         return;
     }
     printf("\nReleased ID: %d\n", shmid);
-    printf("Shared memory segment released\n");
+    printf("Shared memory segment released\n\n");
 }
 
 void* attachSharedMemorySegment(int shmid) {
@@ -63,5 +63,5 @@ void detachSharedMemorySegment(void* ptr) {
         return ;
     }
 
-    printf("\nShared memory segment detach for attach ptr\n");
+    printf("Shared memory segment detach for attach ptr\n");
 }
