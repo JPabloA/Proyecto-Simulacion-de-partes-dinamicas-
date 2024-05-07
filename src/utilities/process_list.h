@@ -19,15 +19,13 @@ typedef enum ListNode_State {
 
 typedef struct Process_List {
     int pid;
-    // ThreadProcess* proc;
     Process_State proc_state;
     ListNode_State state;
 }Process_List;
 
 void initProcessListByDefault(Process_List* list);
 
-// void addProcessToList(Process_List* list, ThreadProcess* proc, Process_State proc_state);
-void addProcessToList(Process_List* list, int pid, Process_State proc_state);
+int addProcessToList(Process_List* list, int pid, Process_State proc_state);
 
 void changeProcState(Process_List* list, Process_State newState, int index);
 
