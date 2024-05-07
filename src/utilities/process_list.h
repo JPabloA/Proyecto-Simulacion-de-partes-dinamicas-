@@ -18,7 +18,7 @@ typedef enum ListNode_State {
 }ListNode_State;
 
 typedef struct Process_List {
-    ThreadProcess* proc;
+    int procID;
     Process_State proc_state;
     ListNode_State state;
 }Process_List;

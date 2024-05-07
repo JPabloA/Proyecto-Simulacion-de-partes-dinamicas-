@@ -163,11 +163,18 @@ int loadInSharedMemory(ThreadProcess *proc)
     int index = -1;
 
     printf("[Aplicando metodo]: Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
+    
+    // ! to add the process info to the list
+    sem_wait(semaphoreProcList);
+    addProcessToList(processList, proc, BLOCKED);
+    sem_post(semaphoreProcList);
+
     sem_wait(semaphoreMemory);
 
     // !With Memory Access
-    // ? WE NEED TO ADD THE PROCESS TO THE LIST HERE (NO & because they are pointers)
-    //addProcessToList(processList, proc, WITH_MEMORY_ACCESS);
+    sem_wait(semaphoreProcList);
+    changeProcState(processList, WITH_MEMORY_ACCESS, proc->listIndex);
+    sem_post(semaphoreProcList);
 
     if (algorithm == FirstFit)
     {
@@ -184,7 +191,6 @@ int loadInSharedMemory(ThreadProcess *proc)
 
     sem_post(semaphoreMemory);
 
-    // here is where it supposed to be the remove but the next state of the process is running so we only change the state
 
     printf("[Aplicando metodo]: Proceso %d adquirió semáforo de memoria\n", proc->pid);
     printf("[Aplicando metodo]: El size del proceso %d es: %d\n", proc->pid, proc->lines);
@@ -260,24 +266,26 @@ void *searhForMemory(void *args)
     if (index == -1)
     {
         printf(">>> Process couldnt be assigned -> End of process\n");
-
+        // !Remove the process from the list (ND->Blocked->WMA->Running->ND)
+        sem_wait(semaphoreProcList);
+        removeProcessFromList(processList, proc->listIndex);  
+        sem_post(semaphoreProcList);
         free(args);
         pthread_exit(NULL);
         return NULL;
     }
     // !Running proccesses 
-    if (proc->listIndex != -1)
-    {
-        changeProcState (processList, RUNNING, proc->listIndex);
-    }
+    sem_wait(semaphoreProcList);
+    changeProcState (processList, RUNNING, proc->listIndex);
+    sem_post(semaphoreProcList);
+
     sleep(proc->time);
 
     // !Remove the process from the list (ND->Blocked->WMA->Running->ND)
-    /*
-    if (proc->listIndex != 0 ) {
-        removeProcessFromList(processList, proc->listIndex);       
-    }
-    */
+    sem_wait(semaphoreProcList);
+    removeProcessFromList(processList, proc->listIndex);  
+    sem_post(semaphoreProcList);
+
     // Released occupied memory lines
     printf(">>> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
     releaseInSharedMemory(index, proc);
