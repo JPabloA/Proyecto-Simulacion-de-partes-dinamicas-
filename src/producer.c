@@ -171,12 +171,14 @@ int loadInSharedMemory(ThreadProcess *proc)
     proc->listIndex = posInList;
     sem_post(semaphoreProcList);
 
+
     sem_wait(semaphoreMemory);
 
     // !With Memory Access
     sem_wait(semaphoreProcList);
     changeProcState(processList, WITH_MEMORY_ACCESS, proc->listIndex);
     sem_post(semaphoreProcList);
+    //sleep(45); //sleep to see spy.c working in different lists
 
     if (algorithm == FirstFit)
     {
