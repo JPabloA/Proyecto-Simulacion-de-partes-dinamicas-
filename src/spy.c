@@ -35,7 +35,7 @@ void printProcesses(Process_List* list, char* print_title, char* status_text) {
     printf(" +--------------------------\n");
 
     for (int i = 0; i < MAX_LIST_LENGTH && list[i].state != EMPTY; i++) {
-        printf(" | %d\t%s\n", list[i].proc->pid, (list[i].proc_state == WITH_MEMORY_ACCESS) ? status_text : "Is something wrong");
+        printf(" | %d\t%s\n", list[i].pid, (list[i].proc_state == WITH_MEMORY_ACCESS) ? status_text : "Is something wrong");
     }
     printf("\n");
     
@@ -57,13 +57,13 @@ void showProcessesStates(Process_List* list) {
     for (int i = 0; i < MAX_LIST_LENGTH; ++i) {
         switch (list[i].proc_state) {
             case WITH_MEMORY_ACCESS:
-                addProcessToList(list_withMemoryAccess, list[i].proc, WITH_MEMORY_ACCESS);
+                addProcessToList(list_withMemoryAccess, list[i].pid, WITH_MEMORY_ACCESS);
                 break;
             case RUNNING:
-                addProcessToList(list_procRunning, list[i].proc, RUNNING);
+                addProcessToList(list_procRunning, list[i].pid, RUNNING);
                 break;
             case BLOCKED:
-                addProcessToList(list_procBlocked, list[i].proc, BLOCKED);
+                addProcessToList(list_procBlocked, list[i].pid, BLOCKED);
                 break;
             default:
                 break;
