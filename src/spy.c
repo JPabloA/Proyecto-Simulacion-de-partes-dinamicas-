@@ -55,9 +55,6 @@ void showProcessesStates(Process_List* list) {
 
     // Set processes in each list based on their state
     for (int i = 0; i < MAX_LIST_LENGTH; ++i) {
-        printf("Indice: %d State: %d \n", i, list[1].proc_state);
-        printf("Direccion del proceso %p\n", list[i].proc);
-        printf("El id de ese proceso es: %d\n", list[i].proc->pid);
         switch (list[i].proc_state) {
             case WITH_MEMORY_ACCESS:
                 addProcessToList(list_withMemoryAccess, list[i].pid, WITH_MEMORY_ACCESS);
