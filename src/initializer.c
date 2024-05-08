@@ -105,5 +105,17 @@ int main(int argc, char const *argv[])
 
     printf("\n > All shared memory segments set\n\n");
 
+    FILE* file = fopen("bitacora.txt", "a");
+    if (file == NULL) {
+        perror("Error al abrir la bitácora");
+        exit(1);
+    }
+
+    // Escribir la entrada en la bitácora
+    fprintf(file, "*****  Inicio del nueva ejecucion lineas reservadas %d, Memoria Reservada! *****\n", num_lines);
+
+    // Cerrar el archivo y liberar el semáforo
+    fclose(file);
+
     return 0;
 }

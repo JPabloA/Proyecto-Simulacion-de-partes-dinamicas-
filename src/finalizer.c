@@ -34,5 +34,17 @@ int main(int argc, char const *argv[]) {
         UnlinkSemaphore(SNAME_PROC_LIST);
     }
 
+    FILE* file = fopen("bitacora.txt", "a");
+    if (file == NULL) {
+        perror("Error al abrir la bitácora");
+        exit(1);
+    }
+
+    // Escribir la entrada en la bitácora
+    fprintf(file, "*****  Finalizacion del programa, Memoria Liberada! *****\n");
+
+    // Cerrar el archivo y liberar el semáforo
+    fclose(file);
+
     return 0;
 }
