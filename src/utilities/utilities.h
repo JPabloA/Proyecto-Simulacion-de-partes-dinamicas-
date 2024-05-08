@@ -39,4 +39,12 @@ typedef struct {
     int num_lines;
 } SharedInformation;
 
+typedef struct {
+    int pid;
+    char accion[50];
+    char tipo[20];
+    char hora[20];
+    int lineas;
+} BitacoraEntry;
+
 #endif
