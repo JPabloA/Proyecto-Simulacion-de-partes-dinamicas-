@@ -6,6 +6,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <errno.h>
+#include <string.h>
 
 #include "./utilities/utilities.h"
 #include "./utilities/process_list.h"
@@ -157,6 +158,38 @@ int method_WorstFit(ThreadProcess *proc)
     return index;
 }
 
+void get_current_time(char* buffer, size_t size) 
+{
+    time_t raw_time = time(NULL);
+    struct tm* time_info = localtime(&raw_time);
+    strftime(buffer, size, "%Y-%m-%d %H:%M:%S", time_info);
+}
+
+void write_to_bitacora(ThreadProcess *proc, char *action, char *type) 
+{
+    // Abrir el archivo de bitácora para agregar datos
+    FILE* file = fopen("bitacora.txt", "a");
+    if (file == NULL) {
+        perror("Error al abrir la bitácora");
+        exit(1);
+    }
+
+    BitacoraEntry entry;
+    entry.pid = proc->pid; // Obtener el PID del proceso actual
+    strcpy(entry.accion, action);
+    strcpy(entry.tipo, type);
+    
+    get_current_time(entry.hora, sizeof(entry.hora));  // Obtener la hora actual
+    entry.lineas = proc->lines;  // Número de líneas asignadas
+
+    // Escribir la entrada en la bitácora
+    fprintf(file, "ID: %d | Accion: %s | Tipo: %s | Hora: %s | Lineas: %d\n",
+            entry.pid, entry.accion, entry.tipo, entry.hora, entry.lineas);
+
+    // Cerrar el archivo y liberar el semáforo
+    fclose(file);
+}
+
 int loadInSharedMemory(ThreadProcess *proc)
 {
 
@@ -196,6 +229,8 @@ int loadInSharedMemory(ThreadProcess *proc)
 
     printf("[Aplicando metodo]: Proceso %d adquirió semáforo de memoria\n", proc->pid);
     printf("[Aplicando metodo]: El size del proceso %d es: %d\n", proc->pid, proc->lines);
+
+    write_to_bitacora(proc, "Proceso almacenado en memoria", "Asignación");
 
     return index;
 }
@@ -262,12 +297,15 @@ void *searhForMemory(void *args)
     ThreadProcess *proc = (ThreadProcess *)args;
     printf(">>> Process created: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
 
+    write_to_bitacora(proc, "Proceso Creado", "Asignación");
+
     // Assign process in memory
     int index = loadInSharedMemory(proc);
 
     if (index == -1)
     {
         printf(">>> Process couldnt be assigned -> End of process\n");
+        write_to_bitacora(proc, "No hay espacio para el proceso", "Desasignacion");
         // !Remove the process from the list (ND->Blocked->WMA->Running->ND)
         sem_wait(semaphoreProcList);
         removeProcessFromList(processList, proc->listIndex);  
@@ -290,6 +328,7 @@ void *searhForMemory(void *args)
 
     // Released occupied memory lines
     printf(">>> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
+    write_to_bitacora(proc, "Proceso Liberado", "Desasignacion");
     releaseInSharedMemory(index, proc);
     free(args);
     pthread_exit(NULL);
