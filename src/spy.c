@@ -34,10 +34,13 @@ void printProcesses(Process_List* list, char* print_title, char* status_text, Pr
     printf(" | ProcID\tProc State\n");
     printf(" +--------------------------\n");
 
+    char isEmpty = 1;
+
     for (int i = 0; i < MAX_LIST_LENGTH && list[i].state != EMPTY; i++) {
         printf(" | %d\t\t%s\n", list[i].pid, (list[i].proc_state == verify_state) ? status_text : "Is something wrong");
+        isEmpty = 0;
     }
-    printf("\n");
+    printf((!isEmpty) ? " +--------------------------\n\n" : "\n");
     
 }
 
