@@ -29,6 +29,7 @@ sem_t *semaphoreMemory, *semaphoreLog, *semaphoreProcList;
 int num_lines;
 int currentProccesNumber;
 enum Algorithm algorithm;
+char* algorithm_name;
 
 void setProcessInMemory(ThreadProcess* proc, int index) {
     for (int i = index; i < (index + proc->lines) && index != -1; ++i) {
@@ -58,7 +59,6 @@ int method_FirstFit(ThreadProcess *proc)
 
 int method_BestFit(ThreadProcess *proc)
 {
-    int index = -1;
     int proc_size = proc->lines;
     int best_fit = num_lines; // Initialize with the maximum possible value
     int hole_index = -1;
@@ -87,7 +87,7 @@ int method_BestFit(ThreadProcess *proc)
 
         if (current_hole >= proc_size) // Only InUse space are gonna get here (current hole only are gonna be != than 0 if was empty spaces before)
         {
-            if (current_hole < best_fit)
+            if (current_hole <= best_fit)
             {
                 best_fit = current_hole; // best hole in this try
                 hole_index = i;
@@ -97,19 +97,13 @@ int method_BestFit(ThreadProcess *proc)
     }
 
     // If a suitable hole is found, load the process into memory
-    index = hole_index;
-    for (int i = index; i < (index + proc->lines) && index != -1; ++i)
-    {
-        memory[i].state = InUse;
-        memory[i].pid = proc->pid;
-    }
+    setProcessInMemory(proc, hole_index);
 
-    return index;
+    return hole_index;
 }
 
 int method_WorstFit(ThreadProcess *proc)
 {
-    int index = -1;
     int proc_size = proc->lines;
     int worst_fit = 1; // Initialize with the min possible value
     int hole_index = -1;
@@ -148,14 +142,9 @@ int method_WorstFit(ThreadProcess *proc)
     }
 
     // If a suitable hole is found, load the process into memory
-    index = hole_index;
-    for (int i = index; i < (index + proc->lines) && index != -1; ++i)
-    {
-        memory[i].state = InUse;
-        memory[i].pid = proc->pid;
-    }
+    setProcessInMemory(proc, hole_index);
 
-    return index;
+    return hole_index;
 }
 
 void get_current_time(char* buffer, size_t size) 
@@ -196,7 +185,7 @@ int loadInSharedMemory(ThreadProcess *proc)
     int index = -1;
     int posInList = -1;
 
-    printf("[Aplicando metodo]: Proceso %d intentando adquirir semáforo de memoria\n", proc->pid);
+    printf("\x1b[33m[Aplicando %s]: Proceso %d intentando adquirir semáforo de memoria\x1b[0m\n", algorithm_name, proc->pid);
     
     // ! to add the process info to the list
     sem_wait(semaphoreProcList);
@@ -229,8 +218,8 @@ int loadInSharedMemory(ThreadProcess *proc)
     sem_post(semaphoreMemory);
 
 
-    printf("[Aplicando metodo]: Proceso %d adquirió semáforo de memoria\n", proc->pid);
-    printf("[Aplicando metodo]: El size del proceso %d es: %d\n", proc->pid, proc->lines);
+    printf("\x1b[33m[Aplicando %s]: Proceso %d adquirió semáforo de memoria\x1b[0m\n", algorithm_name, proc->pid);
+    printf("\x1b[33m[Aplicando %s]: El size del proceso %d es: %d\x1b[0m\n", algorithm_name, proc->pid, proc->lines);
 
     write_to_bitacora(proc, "  Proceso almacenado en memoria ", "  Asignación   ");
 
@@ -306,7 +295,7 @@ void *searhForMemory(void *args)
 
     if (index == -1)
     {
-        printf(">>> Process couldnt be assigned -> End of process\n");
+        printf("\x1b[31m>>> Process ID: %d couldnt be assigned -> End of process\x1b[0m\n", proc->pid);
         write_to_bitacora(proc, " No hay espacio para el proceso ", " Desasignacion ");
         // !Remove the process from the list (ND->Blocked->WMA->Running->ND)
         sem_wait(semaphoreProcList);
@@ -329,7 +318,7 @@ void *searhForMemory(void *args)
     sem_post(semaphoreProcList);
 
     // Released occupied memory lines
-    printf(">>> Process released: ID: %d - Lines: %d - Time: %d\n", proc->pid, proc->lines, proc->time);
+    printf("\x1b[32m>>> Process released: ID: %d - Lines: %d - Time: %d\x1b[0m\n", proc->pid, proc->lines, proc->time);
     write_to_bitacora(proc, "    Proceso Liberado            ", " Desasignacion ");
     releaseInSharedMemory(index, proc);
     free(args);
@@ -382,12 +371,15 @@ int main()
     {
     case 1:
         algorithm = BestFit;
+        algorithm_name = "Best Fit";
         break;
     case 2:
         algorithm = FirstFit;
+        algorithm_name = "First Fit";
         break;
     case 3:
         algorithm = WorstFit;
+        algorithm_name = "Worst Fit";
         break;
     default:
         printf("Opción inválida\n");
