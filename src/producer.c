@@ -1,21 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <sys/shm.h>
 #include <time.h>
 #include <pthread.h>
-#include <errno.h>
 #include <string.h>
+
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "./utilities/utilities.h"
 #include "./utilities/process_list.h"
 #include "./utilities/sharedMemory.h"
 #include "./utilities/sharedSemaphore.h"
-
-// Thread Pool implementation
-#define THREAD_NUMBER 5
-pthread_t threads[THREAD_NUMBER];
 
 // Share memory segments - Manager structures
 Line *memory;
@@ -31,6 +29,10 @@ int currentProccesNumber;
 enum Algorithm algorithm;
 char* algorithm_name;
 
+// Thread variable to keep creating proccesses
+volatile short int keepRunning = 1;
+
+// Load process info into memory
 void setProcessInMemory(ThreadProcess* proc, int index) {
     for (int i = index; i < (index + proc->lines) && index != -1; ++i) {
         memory[i].state = InUse;
@@ -38,8 +40,7 @@ void setProcessInMemory(ThreadProcess* proc, int index) {
     }
 }
 
-int method_FirstFit(ThreadProcess *proc)
-{
+int method_FirstFit(ThreadProcess *proc) {
     int index = -1;
     int proc_size = proc->lines;
 
@@ -179,9 +180,7 @@ void write_to_bitacora(ThreadProcess *proc, char *action, char *type)
     fclose(file);
 }
 
-int loadInSharedMemory(ThreadProcess *proc)
-{
-
+int loadInSharedMemory(ThreadProcess *proc) {
     int index = -1;
     int posInList = -1;
 
@@ -242,18 +241,21 @@ void releaseInSharedMemory(int index, ThreadProcess *proc)
 }
 
 void initEnvironment() {
+    // Init pipe comunication
+    mkfifo(PIPE_FILE, 0666);
+
     // Get semaphores
     semaphoreMemory = GetSemaphore(SNAME);
     semaphoreProcList = GetSemaphore(SNAME_PROC_LIST);
 
     if (semaphoreMemory == NULL) {
         printf("ERROR: Failed getting memory semaphore - Producer\n");
-        printf("Make sure you execute the initializer before you run the producer\n");
+        printf("Make sure to execute the initializer before running the producer\n");
         exit(1);
     }
     if (semaphoreProcList == NULL) {
         printf("ERROR: Failed getting proc list semaphore - Producer\n");
-        printf("Make sure you execute the initializer before you run the producer\n");
+        printf("Make sure to execute the initializer before running the producer\n");
         exit(1);
     }
 
@@ -300,12 +302,13 @@ void *searhForMemory(void *args)
     {
         printf("\x1b[31m>>> Process ID: %d couldnt be assigned -> End of process\x1b[0m\n", proc->pid);
         write_to_bitacora(proc, " No hay espacio para el proceso ", " Desasignacion ");
+
         // !Remove the process from the list (ND->Blocked->WMA->Running->ND)
         sem_wait(semaphoreProcList);
         removeProcessFromList(processList, proc->listIndex);  
         sem_post(semaphoreProcList);
+        
         free(args);
-        pthread_exit(NULL);
         return NULL;
     }
     else{
@@ -327,8 +330,8 @@ void *searhForMemory(void *args)
     printf("\x1b[32m>>> Process released: ID: %d - Lines: %d - Time: %d\x1b[0m\n", proc->pid, proc->lines, proc->time);
     write_to_bitacora(proc, " Proceso Liberado               ", " Desasignacion ");
     releaseInSharedMemory(index, proc);
+    
     free(args);
-    pthread_exit(NULL);
     return NULL;
 }
 
@@ -338,7 +341,6 @@ ThreadProcess *createProcess()
     args->pid = getProccesID();
     args->lines = rand() % 10 + 1;
     args->listIndex = -1;
-    // args->lines = 3;
     args->time = rand() % 41 + 20;
     currentProccesNumber++;
 
@@ -352,26 +354,64 @@ void *createProcesses(void *arg)
 
     // !: while to create the process
     srand(time(NULL));
-    while (information[0].flagForWhile)
-    {
-
+    while (keepRunning) {
         pthread_create(&thread, NULL, &searhForMemory, createProcess());
-        // pthread_join(thread, NULL);
 
         int delay = rand() % 31 + 30;
-        delay = 10;
         sleep(delay);
     }
 }
 
-int main()
-{
+// *** Comunication between prod and finalizer (Finish execution)
+// Wait for the finalizer signal (Stop creating proccesses)
+void *waitSignalFromFinalizer(void *arg) {
+    char pipe_flags[] = {(char)1, (char)1};
+    int pipeProducer;
+
+    printf("\n[INFO]: Producer in execution. Waiting for finalizer signal...\n");
+    while (pipe_flags[0]) {
+        pipeProducer = open(PIPE_FILE, O_RDONLY);
+        
+        read(pipeProducer, pipe_flags, PIPE_SIZE);
+        close(pipeProducer);
+
+        sleep(3);
+    }
+    keepRunning = 0;
+    printf("\n[INFO]: Finalizer signal received. Waiting all in-progress threads to finish\n\n");
+
+    return NULL;
+}
+
+// Send signal to the finalizer (Indicates that producer has freed all structures)
+void postSignalToFinalizer() {
+    char pipe_flags[] = {(char)1, (char)1};
+    pipe_flags[1] = (char)0;
+
+    printf("\n[INFO]: Sending signal to finalizer...\n");
+
+    int pipeProducer = open(PIPE_FILE, O_WRONLY);
+    write(pipeProducer, pipe_flags, PIPE_SIZE);
+    close(pipeProducer);
+    
+    printf("[INFO]: Signal to finalizer sended\n\n");
+}
+
+// Set the flags for producer and finalizer (Indicates that the producer is in execution)
+void setPipeFlags() {
+    char pipe_flags[] = {(char)1, (char)1};
+
+    int pipeProducer = open(PIPE_FILE, O_WRONLY);
+    write(pipeProducer, pipe_flags, PIPE_SIZE);
+    close(pipeProducer);    
+}
+
+int main() {
     initEnvironment();
-    information->isProducerActive = 1;
 
     // Solicitar el tipo de algoritmo
-    printf("\n\nSeleccione el algoritmo de asignación de memoria:\n");
-    printf("1. Best-Fit\n2. First-Fit\n3. Worst-Fit\n");
+    printf("\nSeleccione el algoritmo de asignación de memoria:\n");
+    printf("1. Best-Fit\n2. First-Fit\n3. Worst-Fit\n: ");
 
     int opcion;
     scanf("%d", &opcion);
@@ -394,13 +434,21 @@ int main()
         printf("Opción inválida\n");
         exit(1);
     }
+    // Set all flags in pipe file
+    setPipeFlags();
+
+    // Thread that is going to wait for the finalizer signal
+    pthread_t waitForFinalizer_Thread;
+    pthread_create(&waitForFinalizer_Thread, NULL, waitSignalFromFinalizer, NULL);
 
     pthread_t processCreatorThread;
     pthread_create(&processCreatorThread, NULL, createProcesses, NULL);
     pthread_join(processCreatorThread, NULL);
 
-    information->flagForWhile = 1; 
     releaseEnvironment();
+
+    // Send signal to finalizer (The producer freed all its structures)
+    postSignalToFinalizer();
 
     return 0;
 }

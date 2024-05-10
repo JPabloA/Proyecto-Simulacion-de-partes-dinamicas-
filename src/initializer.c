@@ -18,8 +18,6 @@ void initSharedInformation(int shmid, int num_lines)
 
     printf("Setting shared information...\n");
     information[0].num_lines = num_lines;
-    information[0].flagForWhile = 1;
-    information[0].isProducerActive = 0;
     printf("Shared information set!\n");
 
     detachSharedMemorySegment(information);
@@ -77,6 +75,19 @@ void initProcessList(int shmid) {
     detachSharedMemorySegment(list);
 }
 
+void initPipeComunication() {
+    FILE* file;
+    file = fopen(PIPE_FILE, "w");
+
+    if (file == NULL) {
+        printf("ERROR: Failed creating pipe file comunicator\n");
+        exit(1);
+    }
+
+    fclose(file);
+    printf("\nPipe file created succesfully in temp\n\n");
+}
+
 int main(int argc, char const *argv[])
 {
     int num_lines;
@@ -96,6 +107,9 @@ int main(int argc, char const *argv[])
         printf("Failed opening memory semaphore - Initializer\n");
         return 1;
     }
+
+    // Create pipe comunication file
+    initPipeComunication();
 
     int shmid1 = createSharedMemorySegment(FILENAME, 's', memory_size);
     int shmid2 = createSharedMemorySegment(SHARED_INFO, 'a', sizeof(SharedInformation));

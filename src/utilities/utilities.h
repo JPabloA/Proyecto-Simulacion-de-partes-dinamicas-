@@ -9,6 +9,9 @@
 #define SNAME "/MemSemaphore"
 #define SNAME_PROC_LIST "/ProcListSemaphore"
 
+#define PIPE_FILE "./temp/pipeFile"
+#define PIPE_SIZE 2
+
 enum State
 {
     InUse,
@@ -37,8 +40,6 @@ typedef struct {
 
 typedef struct {
     int num_lines;
-    int flagForWhile;
-    int isProducerActive;
 } SharedInformation;
 
 typedef struct {

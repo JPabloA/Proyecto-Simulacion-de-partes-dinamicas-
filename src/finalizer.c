@@ -4,42 +4,75 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
+
 #include "./utilities/utilities.h"
 #include "./utilities/sharedMemory.h"
 #include "./utilities/sharedSemaphore.h"
 
-// Share memory segments - Manager structures
-SharedInformation *information;
-int counter;
+// Check if the pipe comunicator file is empty := Is not neccessary to wait for signal
+short int isFileEmpty() {
+    FILE* file;
+    file = fopen(PIPE_FILE, "r");
+
+    if (file == NULL) {
+        printf("ERROR: Failed getting pipe file comunicator\n");
+        exit(1);
+    }
+
+    fseek(file, 0, SEEK_END);
+    short int isEmpty = ftell(file) == 0;
+    fclose(file);
+
+    return isEmpty;
+}
+
+// Send signal to the producer (Stop creating processes)
+void postSignalToProducer() {
+    char pipe_flags[] = {(char)1, (char)1};
+    pipe_flags[0] = (char)0;
+
+    printf("[INFO]: Sending signal to producer...\n");
+
+    int pipeFinalizer = open(PIPE_FILE, O_WRONLY);
+    write(pipeFinalizer, pipe_flags, PIPE_SIZE);
+    close(pipeFinalizer);
+    
+    printf("[INFO]: Signal to producer sended\n");
+}
+
+// Wait for producer signal (Wait until producer has freed all structures)
+void waitSignalFromProducer() {
+    char pipe_flags[] = {(char)1, (char)1};
+    int pipeFinalizer;
+
+    printf("[INFO]: Waiting for producer signal...\n");
+    
+    while (pipe_flags[1]) {
+        pipeFinalizer = open(PIPE_FILE, O_RDONLY);
+        
+        read(pipeFinalizer, pipe_flags, PIPE_SIZE);
+        close(pipeFinalizer);
+
+        sleep(3);
+    };
+    printf("[INFO]: Producer signal received. Freeing all shared segments\n");
+}
 
 int main(int argc, char const *argv[]) {
 
-    // To kill producer
-    counter = 0;
-    int shmid2 = getSharedMemorySegment(SHARED_INFO, 'a');
-    if (shmid2 < 0)
-    {
-        printf("Failed getting segments in init environment\n");
-        exit(1);
+    // Init pipe comunication
+    mkfifo(PIPE_FILE, 0666);
+
+    if (!isFileEmpty()) {
+        // Send signal to finish producer
+        postSignalToProducer();
+        // Wait signal from producer (It has finished)
+        waitSignalFromProducer();
     }
-    information = (SharedInformation *)attachSharedMemorySegment(shmid2);
-
-    // flag to false to end the while
-    information->flagForWhile = 0;
-
-    while(information->flagForWhile == 0 && information->isProducerActive){
-        sleep(5);
-         printf("\033[1;33m (%d intento) Esperando a que el productor finalice...\033[0m\n", counter+1);
-
-        // To avoid ctrl+c error in producer.c 
-        if (counter >= 10){
-            printf("\033[1;31mNo se ha podido establecer comunicación con el productor (Limpiando ambientes de ejecución)...\033[0m\n\n");
-            break;
-        }
-        counter++;
-    }
-    //sleep(10);
-    detachSharedMemorySegment(information);
 
     releaseSharedMemorySegment(FILENAME, 's');
     releaseSharedMemorySegment(SHARED_INFO, 'a');
@@ -63,6 +96,11 @@ int main(int argc, char const *argv[]) {
     else {
         CloseSemaphore(semaphoreProcList);
         UnlinkSemaphore(SNAME_PROC_LIST);
+    }
+
+    // Clear content of file
+    if (fclose(fopen(PIPE_FILE, "w")) != 0) {
+        printf("ERROR: Failed removing pipeFile comunicator content\n");
     }
 
     FILE* file = fopen("bitacora.txt", "a");
