@@ -1,1 +1,162 @@
 
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:35:07 | Lineas: 10
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:35:07 | Lineas: 10
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:07 | Lineas: 10
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:35:17 | Lineas: 1
+ID: 1 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:35:17 | Lineas: 1
+ID: 1 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:17 | Lineas: 1
+ID: 2 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:35:27 | Lineas: 6
+ID: 2 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:35:27 | Lineas: 6
+ID: 2 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:27 | Lineas: 6
+ID: 0 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:29 | Lineas: 10
+ID: 3 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:35:37 | Lineas: 7
+ID: 3 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:35:37 | Lineas: 7
+ID: 3 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:37 | Lineas: 7
+ID: 1 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:42 | Lineas: 1
+ID: 4 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:35:47 | Lineas: 4
+ID: 4 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:35:47 | Lineas: 4
+ID: 4 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:47 | Lineas: 4
+ID: 5 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:35:57 | Lineas: 8
+ID: 5 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:35:57 | Lineas: 8
+ID: 5 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:57 | Lineas: 8
+ID: 3 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 21:35:58 | Lineas: 7
+ID: 6 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:36:07 | Lineas: 1
+ID: 6 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:36:07 | Lineas: 1
+ID: 6 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:36:07 | Lineas: 1
+ID: 4 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 21:36:11 | Lineas: 4
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:42:16 | Lineas: 10
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:42:16 | Lineas: 10
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:42:16 | Lineas: 10
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:42:26 | Lineas: 2
+ID: 1 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:42:26 | Lineas: 2
+ID: 1 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:42:26 | Lineas: 2
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:44:09 | Lineas: 10
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:44:09 | Lineas: 10
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:44:09 | Lineas: 10
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 21:44:19 | Lineas: 3
+ID: 1 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 21:44:19 | Lineas: 3
+ID: 1 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 21:44:19 | Lineas: 3
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 20, Memoria Reservada! *****
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 30, Memoria Reservada! *****
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 30, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:00:28 | Lineas: 8
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:00:28 | Lineas: 8
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:00:28 | Lineas: 8
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:00:38 | Lineas: 4
+ID: 1 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:00:38 | Lineas: 4
+ID: 1 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:00:38 | Lineas: 4
+ID: 2 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:00:48 | Lineas: 9
+ID: 2 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:00:48 | Lineas: 9
+ID: 2 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:00:48 | Lineas: 9
+ID: 3 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:00:58 | Lineas: 10
+ID: 3 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:00:58 | Lineas: 10
+ID: 3 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 22:00:58 | Lineas: 10
+ID: 0 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 22:00:59 | Lineas: 8
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 12, Memoria Reservada! *****
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:08:02 | Lineas: 10
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:08:12 | Lineas: 9
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:08:22 | Lineas: 10
+ID: 2 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:08:22 | Lineas: 10
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:08:22 | Lineas: 10
+ID: 1 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:08:32 | Lineas: 9
+ID: 1 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 22:08:32 | Lineas: 9
+ID: 3 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:08:32 | Lineas: 4
+ID: 4 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:08:42 | Lineas: 3
+ID: 2 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:08:42 | Lineas: 10
+ID: 2 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 22:08:42 | Lineas: 10
+ID: 0 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 22:08:49 | Lineas: 10
+ID: 5 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:08:52 | Lineas: 10
+ID: 3 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:08:52 | Lineas: 4
+ID: 3 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:08:52 | Lineas: 4
+ID: 6 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:09:02 | Lineas: 3
+ID: 4 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:09:02 | Lineas: 3
+ID: 4 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:02 | Lineas: 3
+ID: 7 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:09:12 | Lineas: 3
+ID: 5 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:09:12 | Lineas: 10
+ID: 5 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:12 | Lineas: 10
+ID: 8 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:09:22 | Lineas: 4
+ID: 6 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:09:22 | Lineas: 3
+ID: 6 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:22 | Lineas: 3
+ID: 9 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:09:32 | Lineas: 1
+ID: 7 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:09:32 | Lineas: 3
+ID: 7 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:32 | Lineas: 3
+ID: 10 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:09:42 | Lineas: 1
+ID: 8 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:09:42 | Lineas: 4
+ID: 8 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:42 | Lineas: 4
+ID: 3 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:44 | Lineas: 4
+ID: 6 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:51 | Lineas: 3
+ID: 11 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:09:52 | Lineas: 1
+ID: 9 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:09:52 | Lineas: 1
+ID: 9 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 22:09:52 | Lineas: 1
+ID: 4 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:02 | Lineas: 3
+ID: 10 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:10:02 | Lineas: 1
+ID: 10 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:02 | Lineas: 1
+ID: 12 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:10:02 | Lineas: 8
+ID: 13 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:10:12 | Lineas: 1
+ID: 11 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:10:12 | Lineas: 1
+ID: 11 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:12 | Lineas: 1
+ID: 12 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:10:22 | Lineas: 8
+ID: 12 | Accion:  No hay espacio para el proceso  | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:22 | Lineas: 8
+ID: 14 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:10:22 | Lineas: 6
+ID: 7 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:26 | Lineas: 3
+ID: 15 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:10:32 | Lineas: 10
+ID: 13 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:10:32 | Lineas: 1
+ID: 13 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:32 | Lineas: 1
+ID: 10 | Accion:  Proceso Liberado                | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:36 | Lineas: 1
+ID: 16 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:10:42 | Lineas: 5
+ID: 14 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:10:42 | Lineas: 6
+ID: 14 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:10:42 | Lineas: 6
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 17, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:18:59 | Lineas: 4
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:19:09 | Lineas: 10
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:27:25 | Lineas: 10
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:27:35 | Lineas: 9
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 12, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:31:33 | Lineas: 2
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 20, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:33:38 | Lineas: 10
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:33:48 | Lineas: 4
+ID: 2 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:33:58 | Lineas: 7
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:33:58 | Lineas: 10
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:33:58 | Lineas: 10
+ID: 1 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:34:08 | Lineas: 4
+ID: 1 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:34:08 | Lineas: 4
+ID: 3 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:34:08 | Lineas: 9
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:35:52 | Lineas: 3
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:36:02 | Lineas: 8
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:36:12 | Lineas: 3
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:36:12 | Lineas: 3
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 20, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:52:28 | Lineas: 7
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:52:38 | Lineas: 5
+ID: 0 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:52:48 | Lineas: 7
+ID: 0 | Accion:  Proceso Almacenado en Memoria   | Tipo:  Desasignacion  | Hora: 2024-05-09 22:52:48 | Lineas: 7
+ID: 2 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:52:48 | Lineas: 4
+ID: 1 | Accion:  Aplicando el metodo             | Tipo:   Asignación    | Hora: 2024-05-09 22:52:58 | Lineas: 5
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:57:34 | Lineas: 9
+ID: 1 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 22:57:44 | Lineas: 8
+*****  Finalizacion del programa, Memoria Liberada! *****
+*****  Inicio del nueva ejecucion lineas reservadas 15, Memoria Reservada! *****
+ID: 0 | Accion:  Proceso Creado                  | Tipo:   Asignación    | Hora: 2024-05-09 23:03:19 | Lineas: 4
+*****  Finalizacion del programa, Memoria Liberada! *****

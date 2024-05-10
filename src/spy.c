@@ -89,6 +89,7 @@ int main(int argc, char const *argv[]) {
 
     if (semaphoreMemory == NULL || semaphoreProcList == NULL) {
         printf("Failed getting memory semaphores - Spy\n");
+        printf("Make sure you execute the initializer before you run the spy");
         return 1;
     }
 

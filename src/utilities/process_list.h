@@ -6,10 +6,10 @@
 #define MAX_LIST_LENGTH 20
 
 typedef enum Process_State {
-    WITH_MEMORY_ACCESS, //*Listo 
-    RUNNING, // *Listo
-    BLOCKED, //!Falta
-    NOT_DEFINED // *Listo
+    WITH_MEMORY_ACCESS, 
+    RUNNING, 
+    BLOCKED, 
+    NOT_DEFINED 
 }Process_State;
 
 typedef enum ListNode_State {

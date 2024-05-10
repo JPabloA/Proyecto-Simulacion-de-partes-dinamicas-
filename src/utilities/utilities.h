@@ -37,6 +37,8 @@ typedef struct {
 
 typedef struct {
     int num_lines;
+    int flagForWhile;
+    int isProducerActive;
 } SharedInformation;
 
 typedef struct {

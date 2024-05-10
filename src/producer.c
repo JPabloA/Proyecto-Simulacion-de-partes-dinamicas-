@@ -193,14 +193,13 @@ int loadInSharedMemory(ThreadProcess *proc)
     proc->listIndex = posInList;
     sem_post(semaphoreProcList);
 
-
+    sleep(10);
     sem_wait(semaphoreMemory);
 
     // !With Memory Access
     sem_wait(semaphoreProcList);
     changeProcState(processList, WITH_MEMORY_ACCESS, proc->listIndex);
     sem_post(semaphoreProcList);
-    //sleep(45); //sleep to see spy.c working in different lists
 
     if (algorithm == FirstFit)
     {
@@ -216,6 +215,8 @@ int loadInSharedMemory(ThreadProcess *proc)
     }
 
     sem_post(semaphoreMemory);
+    //sleep(45); //sleep to see spy.c working in different lists
+    sleep(10);
 
 
     printf("\x1b[33m[Aplicando %s]: Proceso %d adquirió semáforo de memoria\x1b[0m\n", algorithm_name, proc->pid);
@@ -247,10 +248,12 @@ void initEnvironment() {
 
     if (semaphoreMemory == NULL) {
         printf("ERROR: Failed getting memory semaphore - Producer\n");
+        printf("Make sure you execute the initializer before you run the producer\n");
         exit(1);
     }
     if (semaphoreProcList == NULL) {
         printf("ERROR: Failed getting proc list semaphore - Producer\n");
+        printf("Make sure you execute the initializer before you run the producer\n");
         exit(1);
     }
 
@@ -349,7 +352,7 @@ void *createProcesses(void *arg)
 
     // !: while to create the process
     srand(time(NULL));
-    while (true)
+    while (information[0].flagForWhile)
     {
 
         pthread_create(&thread, NULL, &searhForMemory, createProcess());
@@ -363,8 +366,11 @@ void *createProcesses(void *arg)
 
 int main()
 {
-    // Solicitar el tipo de algorithmexit
-    printf("Seleccione el algorithm de asignación de memoria:\n");
+    initEnvironment();
+    information->isProducerActive = 1;
+
+    // Solicitar el tipo de algoritmo
+    printf("\n\nSeleccione el algoritmo de asignación de memoria:\n");
     printf("1. Best-Fit\n2. First-Fit\n3. Worst-Fit\n");
 
     int opcion;
@@ -389,39 +395,12 @@ int main()
         exit(1);
     }
 
-    initEnvironment();
-
-    // // Create all pthreads
-    // for (int i = 0; i < THREAD_NUMBER; i++) {
-    //     pthread_create(&threads[i], NULL, &startThread, NULL);
-    // }
-    // // Join all pthreads
-    // for (int i = 0; i < THREAD_NUMBER; i++) {
-    //     pthread_join(threads[0], NULL);
-    // }
-
     pthread_t processCreatorThread;
     pthread_create(&processCreatorThread, NULL, createProcesses, NULL);
     pthread_join(processCreatorThread, NULL);
 
+    information->flagForWhile = 1; 
     releaseEnvironment();
-
-    // memoria = (Line*) shmat(shmid, NULL, 0);
-    // num_lines = shmid / sizeof(Line);
-
-    // getSharedInformation();
-
-    // printf("Memoria asignada...\n");
-    // memoria[0].pid = 5;
-    // memoria[0].state = InUse;
-    // sleep(5);
-    // printf("Memoria liberada\n");
-    // printf("ID %d\n", shmid);
-    // printf("Num lineas %d\n", num_lines);
-
-    // sem_memoria = sem_open("/sem_memoria", 0);
-    // sem_log = sem_open("/sem_log", 0);
-    // log = fopen("log.log", "a");
 
     return 0;
 }

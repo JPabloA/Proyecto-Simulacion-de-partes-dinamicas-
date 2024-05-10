@@ -18,6 +18,8 @@ void initSharedInformation(int shmid, int num_lines)
 
     printf("Setting shared information...\n");
     information[0].num_lines = num_lines;
+    information[0].flagForWhile = 1;
+    information[0].isProducerActive = 0;
     printf("Shared information set!\n");
 
     detachSharedMemorySegment(information);
