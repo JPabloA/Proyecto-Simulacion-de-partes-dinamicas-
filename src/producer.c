@@ -192,8 +192,9 @@ int loadInSharedMemory(ThreadProcess *proc) {
     proc->listIndex = posInList;
     sem_post(semaphoreProcList);
 
-    sleep(10);
+    sleep(3);
     sem_wait(semaphoreMemory);
+    printf("\x1b[33m[Aplicando %s]: Proceso %d adquirió semáforo de memoria\x1b[0m\n", algorithm_name, proc->pid);
 
     // !With Memory Access
     sem_wait(semaphoreProcList);
@@ -212,13 +213,11 @@ int loadInSharedMemory(ThreadProcess *proc) {
     {
         index = method_WorstFit(proc);
     }
-
+    
     sem_post(semaphoreMemory);
     //sleep(45); //sleep to see spy.c working in different lists
-    sleep(10);
+    sleep(3);
 
-
-    printf("\x1b[33m[Aplicando %s]: Proceso %d adquirió semáforo de memoria\x1b[0m\n", algorithm_name, proc->pid);
     printf("\x1b[33m[Aplicando %s]: El size del proceso %d es: %d\x1b[0m\n", algorithm_name, proc->pid, proc->lines);
 
     write_to_bitacora(proc, " Aplicando el metodo            ", "  Asignación   ");
@@ -312,12 +311,13 @@ void *searhForMemory(void *args)
         return NULL;
     }
     else{
-        write_to_bitacora(proc, " Proceso Almacenado en Memoria  ", " Desasignacion ");
+        write_to_bitacora(proc, " Proceso Almacenado en Memoria  ", "  Asignación   ");
     }
     // !Running proccesses 
     sem_wait(semaphoreProcList);
     changeProcState (processList, RUNNING, proc->listIndex);
     sem_post(semaphoreProcList);
+    printf(">>> Process with ID %d in execution for %ds...\n", proc->pid, proc->time);
 
     sleep(proc->time);
 
